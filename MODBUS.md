@@ -41,7 +41,7 @@
 
   | Addr (regs)     | Length (type)     |                          Action                            |
   | --------------- | ----------------- | ---------------------------------------------------------- |
-  | 0x0000 (1 regs) | 2 byte (uint16_t) | Change running MODE (0|mainapp 1|bootload)                 |
+  | 0x0000 (1 regs) | 2 byte (uint16_t) | Change running MODE (0/mainapp 1/bootload)                 |
   |                 |                   |   **0x03 Invalid data value (must be 0x01)**               |
   | 0x0001 (1 regs) | 2 byte (uint16_t) | Change slave address                                       |
   |                 |                   |   **0x03 Invalid data value (must be in 0x01-0xfe range)** |
@@ -70,5 +70,5 @@
 
   | Addr (regs)     | Length (type)     |                          Action                            |
   | --------------- | ----------------- | ---------------------------------------------------------- |
-  | 0x0000 (1 regs) | 2 byte (uint16_t) |  Change running MODE (0|mainapp 1|bootload)                |
+  | 0x0000 (1 regs) | 2 byte (uint16_t) |  Change running MODE (0/mainapp 1/bootload)                |
   |                 |                   |    **0x03 Invalid data value  (must be 0x00)**             |
