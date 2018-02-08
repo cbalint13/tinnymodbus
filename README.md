@@ -1,6 +1,6 @@
 # TINNYMODBUS (ModBus tinny multi-sensor module)
 
-TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro-module that speaks modbus over rs485 wires.
+TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro-module that speaks modbus over rs485 two wires.
 
 ![Logo](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-pcb.png)
 
@@ -14,10 +14,28 @@ TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro
   - Internal IC metrics like Vcc voltage and SOIC8 temperature are available
   - It is designed to cost less than 2 USD
 
+> Wiring of TinnyModBus module
+
+  Use 4 wires (ideal twisted):
+    - 2x @ 12/24V remote power
+    - 2x @ A,B rs485
+
+  Connects sensors:
+    - i2c (any from */libs* drivers)
+    - 1wire (up to 32 18DS20 temperature sensors)
+
+
+  ```
+  >~~~~~~~~~~~~>---  GND   --->|-|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|SCK|>-----  SCK  ----> i2c/SCK sensor(s)
+  >~~ <1200m ~~>--- 12/24V --->|+|   TINNY MODULE   |DAT|>-----  DAT  ----> 1wire/DAT or i2c/SDA sensor(s)
+  >~~~~~~~~~~~~>---   A    --->|A|                  |+5V|>-----  +5V  ----> 500mA max for sensors(s)
+  >~~~~~~~~~~~~>---   B    --->|B|__________________|GND|>-----  GND  ----> ground
+  ```
+
 Schematic, Printed Circuit Board, 3D layout will be released on CircuitMaker.com, but can be also checked in **docs** folder.
 
 
-More docs & usage scenario examples to come.
+More docs & usage scenario examples to come, some are alrady in ```tools/examples/``` folder.
 
 
 ![SCH](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-sch.png)
