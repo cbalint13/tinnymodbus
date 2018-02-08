@@ -2,6 +2,8 @@
 
 TinnyModBus is a very small 11x26mm reconfonfigurable atinny85 mcu based micro module that speaks modbus over remote rs485 wires.
 
+![Logo](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-pcb.png)
+
 > Main specs
 
   - Size is only 11 x 26 mm including screw sockets
@@ -13,3 +15,7 @@ TinnyModBus is a very small 11x26mm reconfonfigurable atinny85 mcu based micro m
   - It is designed to cost less than 2 USD
 
 Schematic, Printed Circuit Board, 3D layout will be released on CircuitMaker.com, but can be also checked in **docs** folder.
+
+
+![SCH](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-sch.png)
+![3D](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-3d.png)
