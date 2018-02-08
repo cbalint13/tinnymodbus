@@ -16,13 +16,15 @@ TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro
 
 > Wiring of TinnyModBus module
 
-  Use 4 wires (ideal twisted):
-    - 2x @ 12/24V remote power
-    - 2x @ A,B rs485
+Use 4 wires (ideal twisted):
 
-  Connects sensors:
-    - i2c (any from */libs* drivers)
-    - 1wire (up to 32 18DS20 temperature sensors)
+  - 2x @ 12/24V remote power
+  - 2x @ A,B rs485
+
+Connects sensors:
+
+  - i2c (any from */libs* drivers)
+  - 1wire (up to 32 18DS20 temperature sensors)
 
 
   ```
