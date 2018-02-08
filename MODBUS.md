@@ -29,13 +29,13 @@
   |                 |                   |   **0x02 Illegal data address (device XX does not exist)** |
   |                 |                   |   **0x08 Parity Error         (device XX CRC failed)**     |
   |                 |                   |   **0x11 Failed to Respond    (device XX BUS failed)**     |
-  | 0x1200 (2 regs) | 4 byte (float)    | 12C: Read temperture from SHT21 device (Celsius)           |
-  | 0x1201 (2 regs) | 4 byte (float)    | 12C: Read R humidity from SHT21 device (Percent)           |
-  | 0x1210 (2 regs) | 4 byte (float)    | 12C: Read visible light lux from SI1145 device (Lux)       |
-  | 0x1211 (2 regs) | 4 byte (float)    | 12C: Read ifrared light lux from SI1145 device (Lux)       |
-  | 0x1211 (2 regs) | 4 byte (float)    | 12C: Read ultraviolet index from SI1145 device (Index)     |
-  | 0x1230 (2 regs) | 4 byte (float)    | 12C: Read temperature from BMP280 device (Celsius)         |
-  | 0x1231 (2 regs) | 4 byte (float)    | 12C: Read air pressure from BMP280 device (hPa)            |
+  | 0x1200 (2 regs) | 4 byte (float)    | I2C: Read temperture from SHT21 device (Celsius)           |
+  | 0x1201 (2 regs) | 4 byte (float)    | I2C: Read R humidity from SHT21 device (Percent)           |
+  | 0x1210 (2 regs) | 4 byte (float)    | I2C: Read visible light lux from SI1145 device (Lux)       |
+  | 0x1211 (2 regs) | 4 byte (float)    | I2C: Read ifrared light lux from SI1145 device (Lux)       |
+  | 0x1211 (2 regs) | 4 byte (float)    | I2C: Read ultraviolet index from SI1145 device (Index)     |
+  | 0x1230 (2 regs) | 4 byte (float)    | I2C: Read temperature from BMP280 device (Celsius)         |
+  | 0x1231 (2 regs) | 4 byte (float)    | I2C: Read air pressure from BMP280 device (hPa)            |
 
   **Write Registers (0x06)**
 
