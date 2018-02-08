@@ -17,6 +17,9 @@ TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro
 Schematic, Printed Circuit Board, 3D layout will be released on CircuitMaker.com, but can be also checked in **docs** folder.
 
 
+More docs & usage scenario examples to come.
+
+
 ![SCH](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-sch.png)
 ![3D](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-3d.png)
 
