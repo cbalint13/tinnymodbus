@@ -35,7 +35,7 @@ Connects sensors:
   >~~~~~~~~~~~~>---   B    --->|B|__________________|GND|>-----  GND  ----> ground
   ```
 
-ModBus detailed register description are in [MODBUS.md](https://github.com/cbalint13/tinnymodbus/raw/master/MODBUS.md).
+ModBus detailed register description are in [MODBUS.md](https://github.com/cbalint13/tinnymodbus/blob/master/MODBUS.md).
 
 Schematic, Printed Circuit Board, 3D layout are available on [CircuitMaker](https://workspace.circuitmaker.com/Projects/Details/Cristian-Balint/TinnyModbus), but can be also checked in **docs** folder.
 
