@@ -9,7 +9,7 @@ TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro
   - Size is only **11x26 mm** including **screw sockets**
   - Can speak **modbus** with several sensors attached, uses a max487 to communicate
   - Have it's own **500mA** budget, **ESD** protected **rs485** lines, and **reverse-polarity** protection
-  - Can read attached sensor data over **1wire**, **i2c**, **spi**, but olso could do **gpio** or **adc**
+  - Can read attached sensor data over **1wire**, **i2c**, **spi**, but also could do **gpio** or **adc**
   - Has its own **bootloader** that speaks modbus and can be reprogrammed right on rs485 wires
   - Internal IC metrics like Vcc voltage and SOIC8 temperature are available
   - It is designed to cost less than **2 USD**
@@ -23,8 +23,9 @@ Use 4 wires (ideal twisted):
 
 Connects sensors:
 
-  - i2c (any from **/libs** drivers)
+  - i2c (any from **/devs** drivers)
   - 1wire (up to 32 18DS20 temperature sensors)
+  - or can do **gpio** or **adc**
 
 
   ```
