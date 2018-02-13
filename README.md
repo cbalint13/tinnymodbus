@@ -1,6 +1,6 @@
 # TINNYMODBUS (ModBus tinny multi-sensor module)
 
-TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro-module that speaks modbus over rs485 two wires.
+TinnyModBus is a very small 11x26mm reconfigurable atmel tinny85 mcu based micro-module that speaks modbus over rs485 two wires. It collects measurements locally from large variety of implemented sensors.
 
 ![Logo](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-pcb.png)
 
