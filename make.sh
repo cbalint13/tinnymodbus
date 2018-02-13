@@ -12,7 +12,7 @@ ENTRYADDR=0x1C00
 CFLAGS="-Wall -DAPPADDR=$ENTRYADDR -DF_CPU=8000000 -mrelax -mmcu=attiny85 -ffunction-sections -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wstrict-prototypes -std=gnu99 -MMD -MP -I./libs -I./devs"
 
 echo
-echo "GCC for AVR > 8.0.1 recommended."
+echo "GCC for AVR > 8.0.1 recommended (code size fits/smaller)."
 echo
 
 ##
@@ -32,7 +32,7 @@ avr-gcc -c $CFLAGS -flto -MF build/1wire.o.d    -Wa,-adhlns=build/1wire.lst     
 avr-gcc -c $CFLAGS -flto -MF build/softi2c.o.d  -Wa,-adhlns=build/softi2c.lst    libs/softi2c.c  -o build/softi2c.o
 avr-gcc -c $CFLAGS -flto -MF build/atsens.o.d   -Wa,-adhlns=build/atsens.lst     libs/atsens.c   -o build/atsens.o
 avr-gcc -c $CFLAGS -flto -MF build/usiuartx.o.d -Wa,-adhlns=build/usiuartx.c.lst libs/usiuartx.c -o build/usiuartx.o
-
+# main.c
 avr-gcc -c $CFLAGS -flto -MF build/main.o.d     -Wa,-adhlns=build/main.lst       main.c          -o build/main.o
 
 avr-gcc $CFLAGS -flto -o build/main.elf \
@@ -60,7 +60,7 @@ avr-gcc -c $CFLAGS -flto -MF build/crt1.o.d     -Wa,-adhlns=build/crt1.c.lst    
 avr-gcc -c $CFLAGS -flto -MF build/softuart.o.d -Wa,-adhlns=build/softuart.c.lst libs/softuart.c -o build/softuart.o
 avr-gcc -c $CFLAGS -flto -MF build/pgmflash.o.d -Wa,-adhlns=build/pgmflash.lst   libs/pgmflash.c -o build/pgmflash.o
 avr-gcc -c $CFLAGS -flto -MF build/eeprom.o.d   -Wa,-adhlns=build/eeprom.c.lst   libs/eeprom.c   -o build/eeprom.o
-
+# boot.c
 avr-gcc -c $CFLAGS -flto -MF build/boot.o.d     -Wa,-adhlns=build/boot.lst       boot.c          -o build/boot.o
 
 avr-gcc $CFLAGS -flto -ffreestanding -nostartfiles -o build/boot.elf build/crt1.o \
@@ -71,11 +71,9 @@ avr-gcc $CFLAGS -flto -ffreestanding -nostartfiles -o build/boot.elf build/crt1.
 
 echo "BOOT:"
 avr-size --format=avr --mcu=attiny85 build/boot.elf
-
 avr-objcopy -j .text -j .data -O ihex build/boot.elf boot.hex
 
 BOOTSIZE=$(avr-size --format=avr --mcu=attiny85 build/boot.elf | grep Program | awk '{print $2}')
-
 printf "BOOT: 0x%04x - 0x%04x \n\n" $ENTRYADDR $(( $ENTRYADDR+$BOOTSIZE ))
 
 ## check if main overlap boot
