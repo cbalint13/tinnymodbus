@@ -1,8 +1,9 @@
 #!/bin/bash
 
-
+# clean
 rm -rf build/*
 rm -rf *.hex
+rm -rf *.eep
 
 # 1280 byte
 # boot reserve
@@ -47,9 +48,8 @@ avr-size --format=avr --mcu=attiny85 build/main.elf
 avr-objcopy -j .text -j .data -O ihex build/main.elf main.hex
 avr-objcopy -j .eeprom --no-change-warnings --change-section-lma .eeprom=0x0000 -O ihex build/main.elf boot.eep
 
-mainsize=$(avr-size --format=avr --mcu=attiny85 build/main.elf | grep Program | awk '{print $2}')
-
-printf "MAIN: 0x0000 - 0x%04x \n\n" $mainsize
+MAINSIZE=$(avr-size --format=avr --mcu=attiny85 build/main.elf | grep Program | awk '{print $2}')
+printf "MAIN: 0x0000 - 0x%04x \n\n" $MAINSIZE
 
 
 ##
@@ -74,7 +74,15 @@ avr-size --format=avr --mcu=attiny85 build/boot.elf
 
 avr-objcopy -j .text -j .data -O ihex build/boot.elf boot.hex
 
-bootsize=$(avr-size --format=avr --mcu=attiny85 build/boot.elf | grep Program | awk '{print $2}')
+BOOTSIZE=$(avr-size --format=avr --mcu=attiny85 build/boot.elf | grep Program | awk '{print $2}')
 
-printf "BOOT: 0x%04x - 0x%04x \n\n" $ENTRYADDR $(( $ENTRYADDR+$bootsize ))
+printf "BOOT: 0x%04x - 0x%04x \n\n" $ENTRYADDR $(( $ENTRYADDR+$BOOTSIZE ))
 
+## check if main overlap boot
+if [ $(( $MAINSIZE )) -ge $(( $ENTRYADDR )) ]
+then
+  printf "ERROR main end [0x%04x] overlap boot begin [0x%04x]\n\n" $MAINSIZE $ENTRYADDR
+  rm -rf build/*
+  rm -rf *.hex
+  rm -rf *.eep
+fi
