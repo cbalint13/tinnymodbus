@@ -63,7 +63,7 @@
 
   | Addr (regs)     | Length (type)     |                          Action                            |
   | --------------- | ----------------- | ---------------------------------------------------------- |
-  | 0x0000 (1 regs) | 2 byte (uint16_t) | Running mode (0|mainapp 1|bootload)                        |
+  | 0x0000 (1 regs) | 2 byte (uint16_t) | Running mode (0/mainapp 1/bootload)                        |
   | 0x0001 (2 regs) | 4 byte (char[4])  | Software version string (ASCII)                            |
 
   **Write Registers (0x06)**
