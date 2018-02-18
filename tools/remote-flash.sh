@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # switch into bootloader
-./examples/bootmode-switch.py
+./examples/mainmode-switch.py
 
 sleep .5
 
@@ -11,5 +11,5 @@ sleep .5
 sleep .5
 
 # switch back to main
-./examples/mainmode-switch.py
+./examples/bootmode-switch.py
 
