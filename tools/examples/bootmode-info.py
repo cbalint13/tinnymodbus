@@ -45,7 +45,7 @@
 
 """
 
-  bootmode-info.c (Query info in BOOT mode)
+  bootmode-info.py (Query info in BOOT mode)
 
 """
 
@@ -68,6 +68,13 @@ client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=9600, timeout=
 client.connect()
 
 idslave = 0x01
+
+if len(sys.argv) == 2:
+  try:
+    idslave = int(sys.argv[1])
+  except:
+    print "usage: %s [idslave]" % sys.argv[0]
+    sys.exit(-1)
 
 # get running mode
 print "modbus cmd: 0x03 value: 0x0000 length: 0x01\n"

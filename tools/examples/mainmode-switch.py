@@ -45,7 +45,7 @@
 
 """
 
-  mainmode-switch.c (Switch from MAIN to BOOT)
+  mainmode-switch.py (Switch from MAIN to BOOT)
 
 """
 
@@ -58,17 +58,23 @@ from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 
 
+
 logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
-
 
 # create connection (main mode is 38400)
 client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=38400, timeout=1.5)
 client.connect()
 
-
 idslave = 0x01
+
+if len(sys.argv) == 2:
+  try:
+    idslave = int(sys.argv[1])
+  except:
+    print "usage: %s [idslave]" % sys.argv[0]
+    sys.exit(-1)
 
 print "modbus cmd: 0x01 value: 0x0001 length: 0x01\n"
 result  = client.write_register(address=0x0000, value=0x0001, count=0x01, unit=idslave)

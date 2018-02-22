@@ -45,7 +45,7 @@
 
 """
 
-  sensor-i2c-read.c (Query all 1wire sensors values)
+  sensor-1w-read.pw (Query all 1wire sensors values)
 
 """
 
@@ -66,8 +66,14 @@ log.setLevel(logging.INFO)
 client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=38400, timeout=1.5)
 client.connect()
 
-
 idslave = 0x01
+
+if len(sys.argv) == 2:
+  try:
+    idslave = int(sys.argv[1])
+  except:
+    print "usage: %s [idslave]" % sys.argv[0]
+    sys.exit(-1)
 
 print "0x03 0x0000\n"
 result  = client.read_holding_registers(address=0x0000, count=0x01, unit=idslave)

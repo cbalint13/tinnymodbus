@@ -45,7 +45,7 @@
 
 """
 
-  bootmode-switch.py (Switch from BOOT mode to MAIN mode)
+  mainmode-chgaddr.py (Change modbus slave address)
 
 """
 
@@ -63,21 +63,19 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-# create connection (boot mode is 9600)
-client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=9600, timeout=1.5)
+# create connection (main mode is 38400)
+client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=38400, timeout=1.5)
 client.connect()
 
-idslave = 0x01
+try:
+  slvaddr = int(sys.argv[1])
+  newaddr = int(sys.argv[2])
+except:
+  print "usage: %s [slvaddr] [newaddr]" % sys.argv[0]
+  sys.exit(-1)
 
-if len(sys.argv) == 2:
-  try:
-    idslave = int(sys.argv[1])
-  except:
-    print "usage: %s [idslave]" % sys.argv[0]
-    sys.exit(-1)
-
-print "modbus cmd: 0x01 value: 0x0000 length: 0x01\n"
-result  = client.write_register(address=0x0000, value=0x0000, count=0x01, unit=idslave)
+print "modbus cmd: 0x06 addr: 0x0001 value: 0x%04x length: 0x01\n" % newaddr
+result  = client.write_register(address=0x0001, value=newaddr, count=0x01, unit=slvaddr)
 print result
 
 print
