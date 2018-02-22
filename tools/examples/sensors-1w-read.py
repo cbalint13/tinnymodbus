@@ -119,23 +119,18 @@ decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big
 value = decoder.decode_16bit_int()
 print value, " devices found\n"
 
-# no device found
-if ( value == 0 ):
- sys.exit(0)
+# iterate sensors
+for idx in range(0, value):
 
-print
+  print "  id: %i 0x04 0x%04x" % (idx, 0x0100+idx)
+  result  = client.read_input_registers(address=0x0100+idx, count=0x04, unit=idslave)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  print "  %08x" % decoder.decode_64bit_uint()
 
-print "0x04 0x0100\n"
-result  = client.read_input_registers(address=0x0100, count=0x04, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print "%08x" % decoder.decode_64bit_uint()
-
-print
-
-print "0x04 0x0200\n"
-result  = client.read_input_registers(address=0x0200, count=0x02, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_32bit_float(), " Celsius\n"
+  print "  id: %i 0x04 0x%04x" % (idx, 0x0200+idx)
+  result  = client.read_input_registers(address=0x0200+idx, count=0x02, unit=idslave)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  print " ", decoder.decode_32bit_float(), " Celsius\n"
 
 print
 
