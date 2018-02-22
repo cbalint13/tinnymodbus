@@ -1,0 +1,4 @@
+build/*
+tools/modbus-flash
+*.hex
+*.eep
