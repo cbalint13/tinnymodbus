@@ -44,5 +44,5 @@ More docs & usage scenario examples to come, some are alrady in ```tools/example
 
 
 ![SCH](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-sch.png)
-![3D](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-3d.png)
+![PHOTO](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-photo.png)
 
