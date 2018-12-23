@@ -72,127 +72,127 @@ if len(sys.argv) == 2:
   try:
     idslave = int(sys.argv[1])
   except:
-    print "usage: %s [idslave]" % sys.argv[0]
+    print ("usage: %s [idslave]" % sys.argv[0])
     sys.exit(-1)
 
-print "0x03 0x0000\n"
+print ("0x03 0x0000\n")
 result  = client.read_holding_registers(address=0x0000, count=0x01, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_16bit_int(), " running mode\n"
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print (decoder.decode_16bit_int(), " running mode\n")
 
-print
+print ("")
 
-print "0x03 0x0001\n"
+print ("0x03 0x0001\n")
 result  = client.read_holding_registers(address=0x0001, count=0x02, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 x = decoder.decode_32bit_int();
-print ''.join(chr((x>>8*(4-byte-1))&0xFF) for byte in range(4)) , " software version \n"
+print (''.join(chr((x>>8*(4-byte-1))&0xFF) for byte in range(4)) , " software version \n")
 
-print
+print ("")
 
-print "0x03 0x0002\n"
+print ("0x03 0x0002\n")
 result  = client.read_holding_registers(address=0x0002, count=0x01, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_16bit_int(), " slave address\n"
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print (decoder.decode_16bit_int(), " slave address\n")
 
-print
+print ("")
 
-print "0x03 0x0003\n"
+print ("0x03 0x0003\n")
 result  = client.read_holding_registers(address=0x0003, count=0x02, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_32bit_float(), " V (internal)\n"
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print (decoder.decode_32bit_float(), " V (internal)\n")
 
-print
+print ("")
 
 print "0x03 0x0004\n"
 result  = client.read_holding_registers(address=0x0004, count=0x02, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_32bit_float(), " C (internal)\n"
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print (decoder.decode_32bit_float(), " C (internal)\n")
 
-print
+print ("")
 
 try:
 
-  print "0x04 0x1200\n"
+  print ("0x04 0x1200\n")
   result  = client.read_input_registers(address=0x1200, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-  print decoder.decode_32bit_float(), " C (sht21)\n"
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+  print (decoder.decode_32bit_float(), " C (sht21)\n")
 
-  print
+  print ("")
 
-  print "0x04 0x1201\n"
+  print ("0x04 0x1201\n")
   result  = client.read_input_registers(address=0x1201, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-  print decoder.decode_32bit_float(), " % (sht21)\n"
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+  print (decoder.decode_32bit_float(), " % (sht21)\n")
 
 except:
 
-  print "No SHT21 found."
+  print ("No SHT21 found.")
 
 
-print
+print ("")
 
 try:
 
-  print "0x04 0x1210\n"
+  print ("0x04 0x1210\n")
   result  = client.read_input_registers(address=0x1210, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   print decoder.decode_32bit_float(), " lux VI (si1145)"
 
-  print
+  print ("")
 
-  print "0x04 0x1211\n"
+  print ("0x04 0x1211\n")
   result  = client.read_input_registers(address=0x1211, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   print decoder.decode_32bit_float(), " lux IR (si1145)"
 
-  print
+  print ("")
 
-  print "0x04 0x1212\n"
+  print ("0x04 0x1212\n")
   result  = client.read_input_registers(address=0x1212, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   print "%.2f UV index (si1145)" % decoder.decode_32bit_float()
 
 except:
 
-  print "No SI1145 found."
+  print ("No SI1145 found.")
 
 
 try:
 
-  print
+  print ("")
 
-  print "0x04 0x1220\n"
+  print ("0x04 0x1220\n")
   result  = client.read_input_registers(address=0x1220, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-  print " %f VI lux (bh1750)" % decoder.decode_32bit_float()
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+  print (" %f VI lux (bh1750)" % decoder.decode_32bit_float())
 
 except:
 
-  print "No BH1750 found."
+  print ("No BH1750 found.")
 
 try:
-  print
+  print ("")
 
-  print "0x04 0x1230\n"
+  print ("0x04 0x1230\n")
   result  = client.read_input_registers(address=0x1230, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   val = float(decoder.decode_32bit_int())
-  print " %.2f C (bmp280)" % (val/100)
+  print (" %.2f C (bmp280)" % (val/100))
 
-  print
+  print ("")
 
-  print "0x04 0x1231\n"
+  print ("0x04 0x1231\n")
   result  = client.read_input_registers(address=0x1231, count=0x02, unit=idslave)
-  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+  decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   val = float(decoder.decode_32bit_int())
-  print " %.2f hPa (bmp280)" % (val/100)
+  print (" %.2f hPa (bmp280)" % (val/100))
 
-  print
+  print ("")
 
-except:
+except: ("")
 
-  print "No BMP280 found."
+  print ("No BMP280 found.")
 
 
 client.close()

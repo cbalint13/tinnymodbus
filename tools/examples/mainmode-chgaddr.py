@@ -71,13 +71,13 @@ try:
   slvaddr = int(sys.argv[1])
   newaddr = int(sys.argv[2])
 except:
-  print "usage: %s [slvaddr] [newaddr]" % sys.argv[0]
+  print ("usage: %s [slvaddr] [newaddr]" % sys.argv[0])
   sys.exit(-1)
 
-print "modbus cmd: 0x06 addr: 0x0001 value: 0x%04x length: 0x01\n" % newaddr
+print ("modbus cmd: 0x06 addr: 0x0001 value: 0x%04x length: 0x01\n" % newaddr)
 result  = client.write_register(address=0x0001, value=newaddr, count=0x01, unit=slvaddr)
-print result
+print (result)
 
-print
+print ("")
 
 client.close()

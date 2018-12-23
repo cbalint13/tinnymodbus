@@ -73,24 +73,24 @@ if len(sys.argv) == 2:
   try:
     idslave = int(sys.argv[1])
   except:
-    print "usage: %s [idslave]" % sys.argv[0]
+    print ("usage: %s [idslave]" % sys.argv[0])
     sys.exit(-1)
 
 # get running mode
-print "modbus cmd: 0x03 value: 0x0000 length: 0x01\n"
+print ("modbus cmd: 0x03 value: 0x0000 length: 0x01\n")
 result  = client.read_holding_registers(address=0x0000, count=0x01, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
-print decoder.decode_16bit_int(), " (running mode)\n",
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print (decoder.decode_16bit_int(), " (running mode)\n")
 
-print
+print ("")
 
 # get loader version
-print "modbus cmd: 0x03 value: 0x0001 length: 0x02\n"
+print ("modbus cmd: 0x03 value: 0x0001 length: 0x02\n")
 result  = client.read_holding_registers(address=0x0001, count=0x02, unit=idslave)
-decoder = BinaryPayloadDecoder.fromRegisters(result.registers, endian=Endian.Big)
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 x = decoder.decode_32bit_int();
-print ''.join(chr((x>>8*(4-byte-1))&0xFF) for byte in range(4)) , " (software version)\n",
+print (''.join(chr((x>>8*(4-byte-1))&0xFF) for byte in range(4)) , " (software version)\n")
 
-print
+print ("")
 
 client.close()
