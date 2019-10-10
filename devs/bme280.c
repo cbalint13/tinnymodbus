@@ -52,50 +52,65 @@
 #include "softi2c.h"
 
 int32_t t_fine;
-int32_t dig_H1;
+uint8_t m_dig[32];
 
 /*
  * apply temperature calibrations
  */
 static int32_t calib_temp(int32_t adc_T)
 {
-    i2c_start(BME280_ADDRESS<<1);
-    i2c_write(BME280_TEMPERATURE_CALIB_DIG_T1_LSB_REG);
-
-    i2c_rep_start((BME280_ADDRESS<<1)|0x01);
-
-   uint16_t dig_T1  = i2c_read(0);
-            dig_T1 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_T2  = i2c_read(0);
-            dig_T2 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_T3  = i2c_read(0);
-            dig_T3 |= ((uint16_t)i2c_read(1)) << 8;
-
-    i2c_stop();
-
+   uint16_t dig_T1  = ((uint16_t)m_dig[1]) << 8 | m_dig[0];
+    int16_t dig_T2  = ((uint16_t)m_dig[3]) << 8 | m_dig[2];
+    int16_t dig_T3  = ((uint16_t)m_dig[5]) << 8 | m_dig[4];
+    
     return (  (  ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) *           ((int32_t)dig_T2))  >> 11)
             + ( (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14) );
 }
 
+static int32_t calib_pressure(int32_t adc_P)
+{
+   uint16_t dig_P1 = ((uint16_t)m_dig[7]) << 8 | m_dig[6];
+    int16_t dig_P2 = ((uint16_t)m_dig[9]) << 8 | m_dig[8];
+    int16_t dig_P3 = ((uint16_t)m_dig[11]) << 8 | m_dig[10];
+    int16_t dig_P4 = ((uint16_t)m_dig[13]) << 8 | m_dig[12];
+    int16_t dig_P5 = ((uint16_t)m_dig[15]) << 8 | m_dig[14];
+    int16_t dig_P6 = ((uint16_t)m_dig[17]) << 8 | m_dig[16];
+    int16_t dig_P7 = ((uint16_t)m_dig[19]) << 8 | m_dig[18];
+    int16_t dig_P8 = ((uint16_t)m_dig[21]) << 8 | m_dig[20];
+    int16_t dig_P9 = ((uint16_t)m_dig[23]) << 8 | m_dig[22];
+
+    uint32_t P;
+    int32_t var1, var2;
+    var1 = (((int32_t)t_fine)>>1) - (int32_t)64000;
+    var2 = (((var1>>2) * (var1>>2)) >> 11) * ((int32_t)dig_P6);
+    var2 = var2 + ((var1*((int32_t)dig_P5))<<1);
+    var2 = (var2>>2)+(((int32_t)dig_P4)<<16);
+    var1 = (((dig_P3 * (((var1>>2)*(var1>>2)) >> 13)) >>3) + ((((int32_t)dig_P2) * var1)>>1))>>18;
+    var1 = ((((32768+var1))*((int32_t)dig_P1))>>15);
+
+    if (var1 == 0)
+        return 0;
+    P = (((uint32_t)(((int32_t)1048576)-adc_P)-(var2>>12)))*3125;
+    if( P < 0x80000000 )
+        P = (P << 1) / ((uint32_t) var1);
+    else
+        P = (P / (uint32_t)var1) * 2;
+
+    var1 = (((int32_t)dig_P9) * ((int32_t)(((P>>3) * (P>>3))>>13)))>>12;
+    var2 = (((int32_t)(P>>2)) * ((int32_t)dig_P8))>>13;
+
+    return (int32_t)((int32_t)P + ((var1 + var2 + dig_P7) >> 4));
+}
 
 static int16_t calib_humidity(int32_t adc)
-{
-  i2c_start(BME280_ADDRESS<<1);
-  i2c_write(BME280_HUMIDITY_CALIB_DIG_H2_REG); // start with H2 because H1 lies in another block..
-
-  i2c_rep_start((BME280_ADDRESS<<1)|0x01);
-
-  //int32_t dig_H1 = i2c_read(0);
-  int16_t dig_H2  = i2c_read(0) | ((uint16_t)i2c_read(0)) << 8;
-  uint8_t dig_H3 = i2c_read(0);
-  int16_t dig_H4 = i2c_read(0) << 4;
-  int8_t helper_E5 = i2c_read(0);
-          dig_H4 |= helper_E5 & 0x0F;
-  int16_t dig_H5 = i2c_read(0) << 4 | helper_E5 >> 4;
-  int8_t dig_H6 = i2c_read(1);
-
-  i2c_stop();
-
+{  
+  int8_t  dig_H1 = m_dig[24];
+  int16_t dig_H2  = ((uint16_t)m_dig[26] << 8) | m_dig[25];
+  int8_t  dig_H3 = m_dig[27];
+  int16_t dig_H4  = ((uint16_t)m_dig[28] << 4) | (m_dig[29] & 0x0F);
+  int16_t dig_H5  = ((uint16_t)m_dig[30] << 4) | (m_dig[29] >> 4);
+  int8_t  dig_H6 = m_dig[31];
+  
   int32_t var1;
   var1 = (t_fine - ((int32_t)76800));
   var1 = (((((adc << 14) - (((int32_t)dig_H4) << 20) - (((int32_t)dig_H5) * var1)) +
@@ -105,10 +120,43 @@ static int16_t calib_humidity(int32_t adc)
   var1 = (var1 - (((((var1 >> 15) * (var1 >> 15)) >> 7) * ((int32_t)dig_H1)) >> 4));
   var1 = (var1 < 0 ? 0 : var1);
   var1 = (var1 > 419430400 ? 419430400 : var1);
+  
   return ((uint32_t)(var1 >> 12))/1024.0*100;
   
 }
 
+/*
+ * read calibration values
+ */
+void read_calibration( void )
+{
+    i2c_start(BME280_ADDRESS << 1);
+    // 0x88 start of calibration value block
+    i2c_write(BME280_TEMPERATURE_CALIB_DIG_T1_LSB_REG); 
+    i2c_rep_start((BME280_ADDRESS << 1) | 0x01);
+
+    // loop from 0x88 (dig_T1) to 0x A1 (dig_H1)
+    int8_t idx = 0;
+    
+    for(idx = 0; idx<24; idx++)
+    {
+        m_dig[idx] = i2c_read(0);
+    }
+    m_dig[++idx] = i2c_read(1);
+    i2c_stop();
+
+    i2c_start(BME280_ADDRESS << 1);
+    // get the last calibration bytes from 0xE1 on
+    i2c_write(BME280_HUMIDITY_CALIB_DIG_H2_REG);
+    i2c_rep_start( (BME280_ADDRESS <<1 ) | 0x01);
+
+    for(idx = 25; idx <32; idx++)
+    {
+        m_dig[idx] = i2c_read(0);
+    }
+    m_dig[++idx] = i2c_read(1);
+    i2c_stop();
+}
 
 /*
  * init sensor
@@ -116,6 +164,7 @@ static int16_t calib_humidity(int32_t adc)
 void bme280_init( void )
 {
      i2c_init();
+     read_calibration();
      // humidity 1x oversampling
      i2c_write8(BME280_ADDRESS, BME280_CTRL_HUM_REG, 0b001);
      // normal mode, temp & pressure sampling rate = 1 (001:1x Sampling; 11: normal mode)
@@ -134,33 +183,6 @@ int32_t bme280_read_value( uint8_t TYPE )
     int32_t V;
 
     i2c_init();
-
-    i2c_start(BME280_ADDRESS<<1);
-    i2c_write(BME280_PRESSURE_CALIB_DIG_P1_LSB_REG);
-
-    i2c_rep_start((BME280_ADDRESS<<1)|0x01);
-
-   uint16_t dig_P1 = i2c_read(0);
-            dig_P1 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P2  = i2c_read(0);
-            dig_P2 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P3  = i2c_read(0);
-            dig_P3 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P4  = i2c_read(0);
-            dig_P4 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P5  = i2c_read(0);
-            dig_P5 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P6  = i2c_read(0);
-            dig_P6 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P7  = i2c_read(0);
-            dig_P7 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P8  = i2c_read(0);
-            dig_P8 |= ((uint16_t)i2c_read(0)) << 8;
-    int16_t dig_P9  = i2c_read(0);
-            dig_P9 |= ((uint16_t)i2c_read(0)) << 8;
-            dig_H1  = i2c_read(1);  // first Humidity Correction Value is in this block..
-
-    i2c_stop();
 
     i2c_start( BME280_ADDRESS << 1 );
     i2c_write( BME280_PRESSURE_MSB_REG );
@@ -191,24 +213,7 @@ int32_t bme280_read_value( uint8_t TYPE )
 
         case BME280_PRES:
         {
-          uint32_t P;
-          int32_t var1, var2;
-          var1 = (((int32_t)t_fine)>>1) - (int32_t)64000;
-          var2 = (((var1>>2) * (var1>>2)) >> 11) * ((int32_t)dig_P6);
-          var2 = var2 + ((var1*((int32_t)dig_P5))<<1);
-          var2 = (var2>>2)+(((int32_t)dig_P4)<<16);
-          var1 = (((dig_P3 * (((var1>>2)*(var1>>2)) >> 13)) >>3) + ((((int32_t)dig_P2) * var1)>>1))>>18;
-          var1 = ((((32768+var1))*((int32_t)dig_P1))>>15);
-          if (var1 == 0)
-            return 0;
-          P = (((uint32_t)(((int32_t)1048576)-adc_P)-(var2>>12)))*3125;
-          if( P < 0x80000000 )
-            P = (P << 1) / ((uint32_t) var1);
-          else
-            P = (P / (uint32_t)var1) * 2;
-          var1 = (((int32_t)dig_P9) * ((int32_t)(((P>>3) * (P>>3))>>13)))>>12;
-          var2 = (((int32_t)(P>>2)) * ((int32_t)dig_P8))>>13;
-          V = (int32_t)((int32_t)P + ((var1 + var2 + dig_P7) >> 4));
+          V = calib_pressure(adc_P);
         }
         break;
 
