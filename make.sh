@@ -24,6 +24,7 @@ avr-gcc -c $CFLAGS -flto -MF build/sht21.o.d    -Wa,-adhlns=build/sht21.lst     
 avr-gcc -c $CFLAGS -flto -MF build/si1145.o.d   -Wa,-adhlns=build/si1145.lst     devs/si1145.c   -o build/si1145.o
 avr-gcc -c $CFLAGS -flto -MF build/bh1750.o.d   -Wa,-adhlns=build/bh1750.lst     devs/bh1750.c   -o build/bh1750.o
 avr-gcc -c $CFLAGS -flto -MF build/bmp280.o.d   -Wa,-adhlns=build/bmp280.lst     devs/bmp280.c   -o build/bmp280.o
+avr-gcc -c $CFLAGS -flto -MF build/bme280.o.d   -Wa,-adhlns=build/bme280.lst     devs/bme280.c   -o build/bme280.o
 
 avr-gcc -c $CFLAGS -flto -MF build/eeprom.o.d   -Wa,-adhlns=build/eeprom.c.lst   libs/eeprom.c   -o build/eeprom.o
 avr-gcc -c $CFLAGS -flto -MF build/crc8.o.d     -Wa,-adhlns=build/crc8.lst       libs/crc8.c     -o build/crc8.o
@@ -37,7 +38,7 @@ avr-gcc -c $CFLAGS -flto -MF build/main.o.d     -Wa,-adhlns=build/main.lst      
 
 avr-gcc $CFLAGS -flto -o build/main.elf \
                 build/main.o build/usiuartx.o build/crc16.o build/crc8.o build/sht21.o build/si1145.o build/bh1750.o \
-                build/bmp280.o build/1wire.o build/softi2c.o build/atsens.o build/ds18b20.o build/eeprom.o \
+                build/bmp280.o build/bme280.o build/1wire.o build/softi2c.o build/atsens.o build/ds18b20.o build/eeprom.o \
         -Wl,--relax,--gc-sections,-Map=build/main.map
 
 

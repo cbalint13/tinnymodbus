@@ -67,6 +67,7 @@
 #include "si1145.h"
 #include "bh1750.h"
 #include "bmp280.h"
+#include "bme280.h"
 
 
 // globals
@@ -77,9 +78,10 @@ extern uint8_t IDModbus;
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
 uint8_t bmp280_done = 0x00;
+uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.01"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.02"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -533,7 +535,39 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
+                                /*
+                                // return I2C DEV VALUES
+                                if ( ( daddr >= 0x1240 ) &&
+                                     ( daddr <= 0x1242 ))
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
 
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    if ( bme280_done == 0x00 )
+                                    {
+                                      bme280_init();
+                                      bme280_done = 0x01;
+                                    }
+
+                                    int32_t V;
+                                    
+                                    if ( daddr == 0x1240 )
+                                      V = bme280_read_value( BME280_TEMP );
+                                    if ( daddr == 0x1241 )
+                                      V = bme280_read_value( BME280_PRES );
+                                    if ( daddr == 0x1242 )
+                                      V = bme280_read_value( BME280_HUM );
+                                   
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
+                                */
                                 break; // fcode=0x04
 
                             // write input register
