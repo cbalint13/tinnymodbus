@@ -66,7 +66,7 @@
 #include "sht21.h"
 #include "si1145.h"
 #include "bh1750.h"
-#include "bmp280.h"
+//#include "bmp280.h"
 #include "bme280.h"
 
 
@@ -81,7 +81,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.02"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.03"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -121,10 +121,13 @@ int main(void)
     // fetch own slave address from EEPROM
     uint8_t IdSv = eeprom_read_byte(&IDModbus);
 
+    #ifdef ATSENS_H
     // internal
     // vcc+temp
     getSens( 4 );
+    #endif
 
+    #ifdef _DS18B20_H
     // 1w pin init
     DDRB &= ~(DDB4);
     oneWireInit(BUS);
@@ -132,6 +135,7 @@ int main(void)
     // 1wire devices store
     oneWireDevice devices[MAX_DEVICES];
     //oneWireSearchBuses(devices, MAX_DEVICES, BUS);
+    #endif
 
     // init UART
     usiuartx_init();
@@ -256,7 +260,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-
+                                #ifdef ATSENS_H
                                 // return internal VCC
                                 if ( daddr == 0x0003 )
                                 {
@@ -296,7 +300,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
                                 break; // fcode=0x03
 
                             // read input register
@@ -317,7 +321,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-
+                                #ifdef _DS18B20_H
                                 // return 1W NUMDEVS
                                 if ( daddr == 0x0001 )
                                 {
@@ -426,7 +430,8 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x02 );
                                     }
                                 }
-
+                                #endif
+                                #ifdef _SHT21_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1200 ) &&
                                      ( daddr <= 0x1201 ) )
@@ -450,7 +455,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _SI1145_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1210 ) &&
                                      ( daddr <= 0x1212 ) )
@@ -482,7 +488,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _BH1750_H
                                 // return I2C DEV VALUES
                                 if ( daddr == 0x1220 )
                                 {
@@ -506,7 +513,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _BMP280_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1230 ) &&
                                      ( daddr <= 0x1231 ) )
@@ -535,7 +543,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-                                /*
+                                #endif
+                                #ifdef _BME280_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1240 ) &&
                                      ( daddr <= 0x1242 ))
@@ -567,7 +576,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-                                */
+                                #endif
                                 break; // fcode=0x04
 
                             // write input register
