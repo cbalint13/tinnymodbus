@@ -55,8 +55,6 @@
 
 
 
-float sensTmp;
-float sensVcc;
 
 void getSens( uint8_t iter );
 

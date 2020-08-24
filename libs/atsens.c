@@ -83,8 +83,8 @@ static float chipTemp(float raw)
 }
 
 // global storage
-extern float sensTmp;
-extern float sensVcc;
+float sensTmp;
+float sensVcc;
 
 /*
  * get measurements
