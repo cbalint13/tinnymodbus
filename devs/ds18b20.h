@@ -46,7 +46,7 @@
 */
 
 #ifndef _DS18B20_H
-#define _DS17B20_H
+#define _DS18B20_H
 
 
 
