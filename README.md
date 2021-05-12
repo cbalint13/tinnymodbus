@@ -26,7 +26,7 @@ Connects sensors:
   - i2c (any from **/devs** drivers)
   - 1wire (up to 32 18DS20 temperature sensors)
   - or can do **gpio** or **adc**
-  - **i2c & 1w** sensors can be **simultaneously** wired
+  - multiple **i2c & 1w** sensors can be **simultaneously** wired
 
 
   ```
