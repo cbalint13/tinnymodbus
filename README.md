@@ -26,11 +26,12 @@ Connects sensors:
   - i2c (any from **/devs** drivers)
   - 1wire (up to 32 18DS20 temperature sensors)
   - or can do **gpio** or **adc**
+  - **i2c & 1w** sensors can be **simultaneously** wired
 
 
   ```
   >~~~~~~~~~~~~>---  GND   --->|-|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|SCK|>-----  SCK  ----> i2c/SCK sensor(s)
-  >~~ <1200m ~~>--- 12/24V --->|+|   TINNY MODULE   |DAT|>-----  DAT  ----> 1wire/DAT or i2c/SDA sensor(s)
+  >~~~ <1.2km ~>--- 12/24V --->|+|   TINNY MODULE   |DAT|>-----  DAT  ----> 1wire/DAT or i2c/SDA sensor(s)
   >~~~~~~~~~~~~>---   A    --->|A|                  |+5V|>-----  +5V  ----> 500mA max for sensors(s)
   >~~~~~~~~~~~~>---   B    --->|B|__________________|GND|>-----  GND  ----> ground
   ```
