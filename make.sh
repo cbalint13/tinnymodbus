@@ -12,7 +12,7 @@ ENTRYADDR=0x1C00
 CFLAGS="-Wall -DAPPADDR=$ENTRYADDR -DF_CPU=8000000 -mrelax -mmcu=attiny85 -ffunction-sections -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wstrict-prototypes -std=gnu99 -MMD -MP -I./libs -I./devs"
 
 echo
-echo "GCC for AVR > 8.0.1 recommended (code size fits/smaller)."
+echo "GCC for AVR (8.0.1 is recommended, code size fits/smaller)."
 echo
 
 ##
