@@ -104,7 +104,7 @@ print (decoder.decode_32bit_float(), " V (internal)\n")
 
 print ("")
 
-print "0x03 0x0004\n"
+print ("0x03 0x0004\n")
 result  = client.read_holding_registers(address=0x0004, count=0x02, unit=idslave)
 decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 print (decoder.decode_32bit_float(), " C (internal)\n")
@@ -137,21 +137,21 @@ try:
   print ("0x04 0x1210\n")
   result  = client.read_input_registers(address=0x1210, count=0x02, unit=idslave)
   decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
-  print decoder.decode_32bit_float(), " lux VI (si1145)"
+  print (decoder.decode_32bit_float(), " lux VI (si1145)")
 
   print ("")
 
   print ("0x04 0x1211\n")
   result  = client.read_input_registers(address=0x1211, count=0x02, unit=idslave)
   decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
-  print decoder.decode_32bit_float(), " lux IR (si1145)"
+  print (decoder.decode_32bit_float(), " lux IR (si1145)")
 
   print ("")
 
   print ("0x04 0x1212\n")
   result  = client.read_input_registers(address=0x1212, count=0x02, unit=idslave)
   decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
-  print "%.2f UV index (si1145)" % decoder.decode_32bit_float()
+  print ("%.2f UV index (si1145)" % decoder.decode_32bit_float())
 
 except:
 
@@ -190,7 +190,7 @@ try:
 
   print ("")
 
-except: ("")
+except:
 
   print ("No BMP280 found.")
 
