@@ -67,6 +67,7 @@
 #include "si1145.h"
 #include "bh1750.h"
 #include "bmp280.h"
+//#include "bme280.h"
 
 
 // globals
@@ -77,9 +78,10 @@ extern uint8_t IDModbus;
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
 uint8_t bmp280_done = 0x00;
+uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.01"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.03"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -119,10 +121,13 @@ int main(void)
     // fetch own slave address from EEPROM
     uint8_t IdSv = eeprom_read_byte(&IDModbus);
 
+    #ifdef ATSENS_H
     // internal
     // vcc+temp
     getSens( 4 );
+    #endif
 
+    #ifdef _DS18B20_H
     // 1w pin init
     DDRB &= ~(DDB4);
     oneWireInit(BUS);
@@ -130,6 +135,7 @@ int main(void)
     // 1wire devices store
     oneWireDevice devices[MAX_DEVICES];
     //oneWireSearchBuses(devices, MAX_DEVICES, BUS);
+    #endif
 
     // init UART
     usiuartx_init();
@@ -254,7 +260,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-
+                                #ifdef ATSENS_H
                                 // return internal VCC
                                 if ( daddr == 0x0003 )
                                 {
@@ -294,7 +300,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
                                 break; // fcode=0x03
 
                             // read input register
@@ -315,7 +321,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-
+                                #ifdef _DS18B20_H
                                 // return 1W NUMDEVS
                                 if ( daddr == 0x0001 )
                                 {
@@ -424,7 +430,8 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x02 );
                                     }
                                 }
-
+                                #endif
+                                #ifdef _SHT21_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1200 ) &&
                                      ( daddr <= 0x1201 ) )
@@ -448,7 +455,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _SI1145_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1210 ) &&
                                      ( daddr <= 0x1212 ) )
@@ -480,7 +488,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _BH1750_H
                                 // return I2C DEV VALUES
                                 if ( daddr == 0x1220 )
                                 {
@@ -504,7 +513,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-
+                                #endif
+                                #ifdef _BMP280_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1230 ) &&
                                      ( daddr <= 0x1231 ) )
@@ -533,7 +543,40 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
+                                #endif
+                                #ifdef _BME280_H
+                                // return I2C DEV VALUES
+                                if ( ( daddr >= 0x1240 ) &&
+                                     ( daddr <= 0x1242 ))
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
 
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    if ( bme280_done == 0x00 )
+                                    {
+                                      bme280_init();
+                                      bme280_done = 0x01;
+                                    }
+
+                                    int32_t V;
+
+                                    if ( daddr == 0x1240 )
+                                      V = bme280_read_value( BME280_TEMP );
+                                    if ( daddr == 0x1241 )
+                                      V = bme280_read_value( BME280_PRES );
+                                    if ( daddr == 0x1242 )
+                                      V = bme280_read_value( BME280_HUM );
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
+                                #endif
                                 break; // fcode=0x04
 
                             // write input register

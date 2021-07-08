@@ -1,15 +1,17 @@
 #!/bin/sh
 
+ADDR=0x01
+
 # switch into bootloader
-./examples/mainmode-switch.py
+./examples/mainmode-switch.py $ADDR
 
 sleep .5
 
 # flash over rs485 wires
-./modbus-flash 0x01 ../main.hex
+./modbus-flash $ADDR ../main.hex
 
 sleep .5
 
 # switch back to main
-./examples/bootmode-switch.py
+./examples/bootmode-switch.py $ADDR
 
