@@ -15,6 +15,7 @@
   | 0x0002 (1 regs) | 2 byte (uint16_t) | Slave address (0x01-0xfe valid range)                      |
   | 0x0003 (2 regs) | 4 byte (float)    | Internal Vcc voltage (Volts)                               |
   | 0x0004 (2 regs) | 4 byte (float)    | Internal temperature (Celsius)                             |
+  | 0x0005 (1 regs) | 2 byte (uint16_t) | Capacitance (uF)                                           |
 
   **Input Registers (0x04)**
 

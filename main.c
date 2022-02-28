@@ -61,13 +61,14 @@
 #include "usiuartx.h"
 #include "softi2c.h"
 #include "atsens.h"
+#include "capacitive.h"
 
-#include "ds18b20.h"
-#include "sht21.h"
-#include "si1145.h"
-#include "bh1750.h"
-#include "bmp280.h"
-//#include "bme280.h"
+// #include "ds18b20.h"
+// #include "sht21.h"
+// #include "si1145.h"
+// #include "bh1750.h"
+// #include "bmp280.h"
+// #include "bme280.h"
 
 
 // globals
@@ -301,7 +302,27 @@ int main(void)
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
                                 #endif
+                                #ifdef CAPACITIVE_H_
+                                // return capacitance
+                                if ( daddr == 0x0005 )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x02; // mslen
+
+                                    // reads
+                                    uint16_t capacitance = get_capacitance_avg( 4 );
+
+                                    // store Vcc
+                                    sendbuff[3] = ((uint8_t*)(&capacitance))[1];
+                                    sendbuff[4] = ((uint8_t*)(&capacitance))[0];
+
+                                    send_modbus_array( &sendbuff[0], 7 );
+                                }
+                                #endif
                                 break; // fcode=0x03
+
 
                             // read input register
                             case 0x04:
