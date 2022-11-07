@@ -60,13 +60,14 @@
 #include "1wire.h"
 #include "usiuartx.h"
 #include "softi2c.h"
-//#include "atsens.h"
+#include "atsens.h"
+
 #include "ds18b20.h"
 //#include "sht21.h"
 //#include "si1145.h"
 #include "bh1750.h"
-//#include "bmp280.h"
-#include "bme280.h"
+#include "bmp280.h"
+//#include "bme280.h"
 
 
 
