@@ -52,5 +52,5 @@
 
 // EEPROM data
 extern uint8_t EEMEM IDModbus;
-
+extern uint8_t EEMEM HumidityOffsetEE;
 #endif

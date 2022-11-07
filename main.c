@@ -60,20 +60,23 @@
 #include "1wire.h"
 #include "usiuartx.h"
 #include "softi2c.h"
-#include "atsens.h"
-
+//#include "atsens.h"
 #include "ds18b20.h"
-#include "sht21.h"
-#include "si1145.h"
+//#include "sht21.h"
+//#include "si1145.h"
 #include "bh1750.h"
-#include "bmp280.h"
-//#include "bme280.h"
+//#include "bmp280.h"
+#include "bme280.h"
+
 
 
 // globals
+#ifdef ATSENS_H
 extern float sensVcc;
 extern float sensTmp;
+#endif
 extern uint8_t IDModbus;
+extern uint8_t HumidityOffsetEE;
 
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
@@ -81,7 +84,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.03"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.04"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -120,6 +123,9 @@ int main(void)
 
     // fetch own slave address from EEPROM
     uint8_t IdSv = eeprom_read_byte(&IDModbus);
+
+    // fetch Humidity Offset from EEPROM
+    uint8_t HumidityOffset = eeprom_read_byte(&HumidityOffsetEE);
 
     #ifdef ATSENS_H
     // internal
@@ -560,14 +566,15 @@ int main(void)
                                       bme280_done = 0x01;
                                     }
 
-                                    int32_t V;
-
+                                    float V;
                                     if ( daddr == 0x1240 )
-                                      V = bme280_read_value( BME280_TEMP );
+                                      V = (float) bme280_read_value( BME280_TEMP )/100;
                                     if ( daddr == 0x1241 )
-                                      V = bme280_read_value( BME280_PRES );
-                                    if ( daddr == 0x1242 )
-                                      V = bme280_read_value( BME280_HUM );
+                                      V = (float) bme280_read_value( BME280_PRES )/100;
+                                    if ( daddr == 0x1242 ) {
+                                      V = (float) bme280_read_value( BME280_HUM )/100;
+                                      V =  V + ( (float) HumidityOffset/10);
+                                    }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -647,7 +654,27 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
+                                // write Humidity Offset
+                                if ( daddr == 0x0011 )
+                                {
+                                    // values within 0x01 - 0xfe
+                                    if ( ( modbus[4] == 0x00 ) &&
+                                         ( ( modbus[5] >= 0x00 ) &&
+                                           ( modbus[5] < 0xff ) )
+                                       )
+                                    {
+                                      // write new Humidity Offset
+                                      HumidityOffset = modbus[5];
+                                      eeprom_write_byte( &HumidityOffsetEE, HumidityOffset );
 
+                                      usiuartx_tx_array( &modbus[0], 8 );
+                                    }
+                                    else
+                                    {
+                                      // illegal data value
+                                      send_modbus_exception( &sendbuff[0], 0x03 );
+                                    }
+                                }
                                 break; // fcode=0x06
 
                         } // end switch fcode

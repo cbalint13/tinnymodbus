@@ -51,3 +51,4 @@
 
 // default slave address
 uint8_t  EEMEM IDModbus = 0x01; // modbus ID
+uint8_t  EEMEM HumidityOffsetEE = 0x00; // Humidity Offset Value
