@@ -66,8 +66,8 @@
 //#include "sht21.h"
 //#include "si1145.h"
 #include "bh1750.h"
-#include "bmp280.h"
-//#include "bme280.h"
+//#include "bmp280.h"
+#include "bme280.h"
 
 
 
@@ -76,8 +76,7 @@
 extern float sensVcc;
 extern float sensTmp;
 #endif
-extern uint8_t IDModbus;
-extern uint8_t HumidityOffsetEE;
+extern uint8_t EEData[];
 
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
@@ -123,10 +122,10 @@ int main(void)
     cli();
 
     // fetch own slave address from EEPROM
-    uint8_t IdSv = eeprom_read_byte(&IDModbus);
+    uint8_t IdSv = eeprom_read_byte(&EEData[0]);
 
     // fetch Humidity Offset from EEPROM
-    uint8_t HumidityOffset = eeprom_read_byte(&HumidityOffsetEE);
+    uint8_t HumidityOffset = eeprom_read_byte(&EEData[1]);
 
     #ifdef ATSENS_H
     // internal
@@ -259,7 +258,7 @@ int main(void)
                                     sendbuff[2] = 0x02; // mslen
 
                                     // read out id slave
-                                    IdSv = eeprom_read_byte(&IDModbus);
+                                    IdSv = eeprom_read_byte(&EEData[0]);
 
                                     // store id slave
                                     sendbuff[3] = 0x00;
@@ -645,7 +644,7 @@ int main(void)
                                     {
                                       // write new id slave
                                       IdSv = modbus[5];
-                                      eeprom_write_byte( &IDModbus, IdSv );
+                                      eeprom_write_byte( &EEData[0], IdSv );
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }
@@ -666,7 +665,7 @@ int main(void)
                                     {
                                       // write new Humidity Offset
                                       HumidityOffset = modbus[5];
-                                      eeprom_write_byte( &HumidityOffsetEE, HumidityOffset );
+                                      eeprom_write_byte( &EEData[1], HumidityOffset );
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }

@@ -64,7 +64,7 @@
 
 
 
-extern uint8_t IDModbus;
+extern uint8_t EEData[];
 
 // modbus frames
 uint8_t modbus[40];
@@ -155,7 +155,8 @@ int main( void )
     );
 
     // fetch own slave address from EEPROM
-    uint8_t IdSv = eeprom_read_byte(&IDModbus);
+    uint8_t IdSv = eeprom_read_byte(&EEData[0]);
+
 
     /*
      * receive buffer for modbus frame (fcode = 3,4,6)
