@@ -1,9 +1,9 @@
 #!/bin/sh
 
-ADDR=0x01
+ADDR=1
 
 # switch into bootloader
-./examples/mainmode-switch.py $ADDR
+./examples/pymodbus3.x/mainmode-switch.py $ADDR
 
 sleep .5
 
@@ -13,5 +13,5 @@ sleep .5
 sleep .5
 
 # switch back to main
-./examples/bootmode-switch.py $ADDR
+./examples/pymodbus3.x/bootmode-switch.py $ADDR
 
