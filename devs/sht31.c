@@ -88,22 +88,12 @@ int32_t sht31ReadValue(uint8_t TYPE)
     switch ( TYPE ) {
         case SHT31_TEMP:
           rawTemperature = ((uint16_t) buffer[0] << 8) + buffer[1];
-          //from specsheet
-          // t[c]  = -45 + 175 * Sr / (2^16 -1)
-          // 100*t = 17500 / 2 ^ 16 * Sr - 4500
-          // 100*t = (17500/4 * Sr) / 2 ^ 14  - 4500
-          //V = ((4375 * (uint32_t) rawTemperature) >> 14) - 4500;
-          V = rawTemperature * (175.0 / 65535) - 45;
+          V =  175 * ( rawTemperature / 65535.0) - 45;
           //V = rawTemperature;
           break;
         case SHT31_HUMI:
           rawHumidity = ((uint16_t) buffer[3] << 8) + buffer[4];
-          //Rh = 100 * value / (2^16-1)
-          // 100*Rh = 10000 * value / (2^16-1)
-          //100*Rh = (10000/16) * value / (2^12)
-
-          //V = (625 * (uint32_t) rawHumidity) >> 12;
-          V = rawHumidity * (100.0 / 65535);
+          V = 100 * ( rawHumidity / 65535.0 );
           //V = rawHumidity;
           break;
     } // end switch

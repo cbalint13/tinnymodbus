@@ -61,7 +61,6 @@
 #include "usiuartx.h"
 #include "softi2c.h"
 #include "atsens.h"
-
 #include "ds18b20.h"
 //#include "sht21.h"
 #include "sht31.h"
@@ -82,7 +81,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.03"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.04"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -308,7 +307,8 @@ int main(void)
                             case 0x04:
 
                                 sendbuff[1] = 0x04; // fcode
-
+                                
+                                #ifdef _DS18B20_H
                                 // return MAX_DEVICES
                                 if ( daddr == 0x0000 )
                                 {
@@ -322,7 +322,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-                                #ifdef _DS18B20_H
+                                
                                 // return 1W NUMDEVS
                                 if ( daddr == 0x0001 )
                                 {
@@ -586,14 +586,17 @@ int main(void)
                                       bme280_done = 0x01;
                                     }
 
-                                    int32_t V;
+                                    //int32_t V;
+                                    float V;
 
                                     if ( daddr == 0x1240 )
-                                      V = bme280_read_value( BME280_TEMP );
+                                      V = (float) bme280_read_value( BME280_TEMP ) /100;
                                     if ( daddr == 0x1241 )
-                                      V = bme280_read_value( BME280_PRES );
-                                    if ( daddr == 0x1242 )
-                                      V = bme280_read_value( BME280_HUM );
+                                      V = (float) bme280_read_value( BME280_PRES ) /100;
+                                    if ( daddr == 0x1242 ) {
+                                      V = (float) bme280_read_value( BME280_HUM ) /100;
+                                      //V =  V + ( (float) HumidityOffset/10);
+                                    }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
