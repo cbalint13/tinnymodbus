@@ -41,7 +41,7 @@
 
 /*
 
-  sht21.c (SHT21 temperature and humidity sensor)
+  sht31.c (SHT31 temperature and humidity sensor)
 
 */
 
@@ -74,12 +74,19 @@ int32_t sht31ReadValue(uint8_t TYPE)
     //read buffers
     i2c_rep_start((SHT31_ADDR<<1)|0x1);
 
+    /*
     buffer[0] = i2c_read(0); i2c_read(0); //temp msb
     buffer[1] = i2c_read(0); i2c_read(0); //temp lsb
     buffer[2] = i2c_read(0); i2c_read(0); //tenp crc
     buffer[3] = i2c_read(0); i2c_read(0); //hum msb
     buffer[4] = i2c_read(0); i2c_read(0); //hum lsb
     buffer[5] = i2c_read(0); i2c_read(1); //hum crc
+    */
+    int8_t idx = 0;
+    for(idx = 0; idx<5; idx++) {
+        buffer[idx] = i2c_read(0);
+    }
+    buffer[++idx] = i2c_read(1);
 
     i2c_stop();
     uint16_t rawTemperature = 0;
@@ -88,12 +95,12 @@ int32_t sht31ReadValue(uint8_t TYPE)
     switch ( TYPE ) {
         case SHT31_TEMP:
           rawTemperature = ((uint16_t) buffer[0] << 8) + buffer[1];
-          V =  175 * ( rawTemperature / 65535.0) - 45;
+          V =  (175 * ( rawTemperature / 65535.0) - 45) * 100;
           //V = rawTemperature;
           break;
         case SHT31_HUMI:
           rawHumidity = ((uint16_t) buffer[3] << 8) + buffer[4];
-          V = 100 * ( rawHumidity / 65535.0 );
+          V = (100 * ( rawHumidity / 65535.0 )) *100;
           //V = rawHumidity;
           break;
     } // end switch

@@ -470,9 +470,9 @@ int main(void)
                                     float V;
 
                                     if ( daddr == 0x1250 )
-                                      V = (float)sht31ReadValue( SHT31_TEMP ) / 1000;
+                                      V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
                                     if ( daddr == 0x1251 )
-                                      V = (float)sht31ReadValue( SHT31_HUMI ) / 1000;
+                                      V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
