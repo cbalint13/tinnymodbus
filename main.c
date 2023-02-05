@@ -67,13 +67,15 @@
 //#include "si1145.h"
 #include "bh1750.h"
 //#include "bmp280.h"
-#include "bme280.h"
+//#include "bme280.h"
 
 
 // globals
+#ifdef ATSENS_H
 extern float sensVcc;
 extern float sensTmp;
-extern uint8_t IDModbus;
+#endif
+extern uint8_t EEData[];
 
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
@@ -119,7 +121,12 @@ int main(void)
     cli();
 
     // fetch own slave address from EEPROM
-    uint8_t IdSv = eeprom_read_byte(&IDModbus);
+    uint8_t IdSv = eeprom_read_byte(&EEData[0]);
+
+    // fetch Temperature Offset from EEPROM
+    uint8_t TemperatureOffset = eeprom_read_byte(&EEData[1]);
+    // fetch Humidity Offset from EEPROM
+    uint8_t HumidityOffset = eeprom_read_byte(&EEData[2]);
 
     #ifdef ATSENS_H
     // internal
@@ -252,7 +259,7 @@ int main(void)
                                     sendbuff[2] = 0x02; // mslen
 
                                     // read out id slave
-                                    IdSv = eeprom_read_byte(&IDModbus);
+                                    IdSv = eeprom_read_byte(&EEData[0]);
 
                                     // store id slave
                                     sendbuff[3] = 0x00;
@@ -469,10 +476,16 @@ int main(void)
 
                                     float V;
 
-                                    if ( daddr == 0x1250 )
+                                    if ( daddr == 0x1250 ) {
                                       V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
-                                    if ( daddr == 0x1251 )
+                                      V =  V + ( (float) TemperatureOffset/10);
+                                    }
+                                      
+                                    if ( daddr == 0x1251 ) {
                                       V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
+                                      V =  V + ( (float) HumidityOffset/10);
+                                    }
+                                      
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -586,16 +599,16 @@ int main(void)
                                       bme280_done = 0x01;
                                     }
 
-                                    //int32_t V;
                                     float V;
-
                                     if ( daddr == 0x1240 )
-                                      V = (float) bme280_read_value( BME280_TEMP ) /100;
-                                    if ( daddr == 0x1241 )
-                                      V = (float) bme280_read_value( BME280_PRES ) /100;
+                                      V = (float) bme280_read_value( BME280_TEMP )/100;
+                                    if ( daddr == 0x1241 ) {
+                                      V = (float) bme280_read_value( BME280_PRES )/100; 
+                                      V =  V + ( (float) TemperatureOffset/10);
+                                      }
                                     if ( daddr == 0x1242 ) {
-                                      V = (float) bme280_read_value( BME280_HUM ) /100;
-                                      //V =  V + ( (float) HumidityOffset/10);
+                                      V = (float) bme280_read_value( BME280_HUM )/100;
+                                      V =  V + ( (float) HumidityOffset/10);
                                     }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
@@ -666,7 +679,7 @@ int main(void)
                                     {
                                       // write new id slave
                                       IdSv = modbus[5];
-                                      eeprom_write_byte( &IDModbus, IdSv );
+                                      eeprom_write_byte( &EEData[0], IdSv );
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }
@@ -676,7 +689,49 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
+                                // write Temperature Offset
+                                if ( daddr == 0x0011 )
+                                {
+                                    // values within 0x01 - 0xfe
+                                    if ( ( modbus[4] == 0x00 ) &&
+                                         ( ( modbus[5] >= 0x00 ) &&
+                                           ( modbus[5] < 0xff ) )
+                                       )
+                                    {
+                                      // write new Temperature Offset
+                                      TemperatureOffset = modbus[5];
+                                      eeprom_write_byte( &EEData[1], TemperatureOffset );
 
+                                      usiuartx_tx_array( &modbus[0], 8 );
+                                    }
+                                    else
+                                    {
+                                      // illegal data value
+                                      send_modbus_exception( &sendbuff[0], 0x03 );
+                                    }
+                                }
+                                break; // fcode=0x06
+                                // write Humidity Offset
+                                if ( daddr == 0x0012 )
+                                {
+                                    // values within 0x01 - 0xfe
+                                    if ( ( modbus[4] == 0x00 ) &&
+                                         ( ( modbus[5] >= 0x00 ) &&
+                                           ( modbus[5] < 0xff ) )
+                                       )
+                                    {
+                                      // write new Humidity Offset
+                                      HumidityOffset = modbus[5];
+                                      eeprom_write_byte( &EEData[2], HumidityOffset );
+
+                                      usiuartx_tx_array( &modbus[0], 8 );
+                                    }
+                                    else
+                                    {
+                                      // illegal data value
+                                      send_modbus_exception( &sendbuff[0], 0x03 );
+                                    }
+                                }
                                 break; // fcode=0x06
 
                         } // end switch fcode

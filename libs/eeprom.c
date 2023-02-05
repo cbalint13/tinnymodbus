@@ -49,5 +49,5 @@
 
 #include "eeprom.h"
 
-// default slave address
-uint8_t  EEMEM IDModbus = 0x01; // modbus ID
+// default SlaveID (1) and default humidity-offset (0)
+uint8_t  EEMEM EEData[3] = {0x01, 0x00, 0x00}; // modbus ID, temperature-offset, humidity-offset

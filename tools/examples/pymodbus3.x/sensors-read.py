@@ -116,6 +116,7 @@ except:
 
   print ("No BH1750 found.")
 
+"""
 try:
   print ("")
 
@@ -149,7 +150,7 @@ try:
 except:
 
   print ("No BME280 found.")
-
+"""
 try:
   print ("")
   
