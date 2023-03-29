@@ -600,12 +600,13 @@ int main(void)
                                     }
 
                                     float V;
-                                    if ( daddr == 0x1240 )
+                                    if ( daddr == 0x1240 ) {
                                       V = (float) bme280_read_value( BME280_TEMP )/100;
+                                      V =  V + ( (float) TemperatureOffset/10);
+                                    }
                                     if ( daddr == 0x1241 ) {
                                       V = (float) bme280_read_value( BME280_PRES )/100; 
-                                      V =  V + ( (float) TemperatureOffset/10);
-                                      }
+                                    }
                                     if ( daddr == 0x1242 ) {
                                       V = (float) bme280_read_value( BME280_HUM )/100;
                                       V =  V + ( (float) HumidityOffset/10);
