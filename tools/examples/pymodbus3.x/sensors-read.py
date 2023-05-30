@@ -64,6 +64,21 @@ print ("%.2f C (internal)\n" % decoder.decode_32bit_float())
 
 print ("")
 
+print ("0x03 0x0012\n")
+result  = client.read_holding_registers(address=0x0012, count=0x02, slave=idslave)
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print ("%.2f °C (offset)\n" % decoder.decode_32bit_float())
+
+print ("")
+
+print ("0x03 0x0022\n")
+result  = client.read_holding_registers(address=0x0022, count=0x02, slave=idslave)
+decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+print ("%.2f %%RH (offset)\n" % decoder.decode_32bit_float())
+
+
+print ("")
+
 print ("0x03 0x0002\n")
 result  = client.read_holding_registers(address=0x0002, count=0x01, slave=idslave)
 decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
@@ -124,8 +139,8 @@ try:
   result  = client.read_input_registers(address=0x1240, count=0x02, slave=idslave)
   decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   #val = float(decoder.decode_32bit_int())
-  #print (" %.2f C (bme280)" % (val/100))
-  print (" %.2f C (bme280)" % decoder.decode_32bit_float())
+  #print (" %.2f °C (bme280)" % (val/100))
+  print (" %.2f °C (bme280)" % decoder.decode_32bit_float())
   
   print ("")
 
@@ -158,7 +173,7 @@ try:
   result  = client.read_input_registers(address=0x1250, count=0x02, slave=idslave)
   decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
   #print (decoder.decode_32bit_float(), " C (sht31)\n")
-  print (" %.2f C (sht31)" % decoder.decode_32bit_float())
+  print (" %.2f °C (sht31)" % decoder.decode_32bit_float())
 
   print ("")
 

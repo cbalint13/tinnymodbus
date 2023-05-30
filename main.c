@@ -83,7 +83,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.04"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.05"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -124,9 +124,11 @@ int main(void)
     uint8_t IdSv = eeprom_read_byte(&EEData[0]);
 
     // fetch Temperature Offset from EEPROM
-    uint8_t TemperatureOffset = eeprom_read_byte(&EEData[1]);
+    int8_t TemperatureOffsetSignedInt = eeprom_read_byte(&EEData[1]);
+    float TemperatureOffset = (float) TemperatureOffsetSignedInt / 10;
     // fetch Humidity Offset from EEPROM
-    uint8_t HumidityOffset = eeprom_read_byte(&EEData[2]);
+    int8_t HumidityOffsetSignedInt = eeprom_read_byte(&EEData[2]);
+    float HumidityOffset = (float) HumidityOffsetSignedInt / 10;
 
     #ifdef ATSENS_H
     // internal
@@ -308,6 +310,44 @@ int main(void)
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
                                 #endif
+                                // read Temperature Offset
+                                if ( daddr == 0x012 )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    TemperatureOffsetSignedInt = eeprom_read_byte(&EEData[1]);
+                                    TemperatureOffset = (float) TemperatureOffsetSignedInt / 10;
+                                    float V = TemperatureOffset;
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
+                                // read Humidity Offset
+                                if ( daddr == 0x022 )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    HumidityOffsetSignedInt = eeprom_read_byte(&EEData[2]);
+                                    HumidityOffset = (float) HumidityOffsetSignedInt / 10;
+                                    float V = HumidityOffset;
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
                                 break; // fcode=0x03
 
                             // read input register
@@ -478,12 +518,12 @@ int main(void)
 
                                     if ( daddr == 0x1250 ) {
                                       V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
-                                      V =  V + ( (float) TemperatureOffset/10);
+                                      V =  V + TemperatureOffset;
                                     }
                                       
                                     if ( daddr == 0x1251 ) {
                                       V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
-                                      V =  V + ( (float) HumidityOffset/10);
+                                      V =  V + HumidityOffset;
                                     }
                                       
 
@@ -602,14 +642,14 @@ int main(void)
                                     float V;
                                     if ( daddr == 0x1240 ) {
                                       V = (float) bme280_read_value( BME280_TEMP )/100;
-                                      V =  V + ( (float) TemperatureOffset/10);
+                                      V =  V + TemperatureOffset;
                                     }
                                     if ( daddr == 0x1241 ) {
                                       V = (float) bme280_read_value( BME280_PRES )/100; 
                                     }
                                     if ( daddr == 0x1242 ) {
                                       V = (float) bme280_read_value( BME280_HUM )/100;
-                                      V =  V + ( (float) HumidityOffset/10);
+                                      V =  V + HumidityOffset;
                                     }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
@@ -693,15 +733,15 @@ int main(void)
                                 // write Temperature Offset
                                 if ( daddr == 0x0011 )
                                 {
-                                    // values within 0x01 - 0xfe
+                                    // values within 0x00 - 0xff
                                     if ( ( modbus[4] == 0x00 ) &&
                                          ( ( modbus[5] >= 0x00 ) &&
-                                           ( modbus[5] < 0xff ) )
+                                           ( modbus[5] <= 0xff ) )
                                        )
                                     {
                                       // write new Temperature Offset
-                                      TemperatureOffset = modbus[5];
-                                      eeprom_write_byte( &EEData[1], TemperatureOffset );
+                                      TemperatureOffsetSignedInt = modbus[5];
+                                      eeprom_write_byte( &EEData[1], TemperatureOffsetSignedInt);
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }
@@ -711,19 +751,18 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
-                                break; // fcode=0x06
                                 // write Humidity Offset
-                                if ( daddr == 0x0012 )
+                                if ( daddr == 0x0021 )
                                 {
-                                    // values within 0x01 - 0xfe
+                                    // values within 0x00 - 0xff
                                     if ( ( modbus[4] == 0x00 ) &&
                                          ( ( modbus[5] >= 0x00 ) &&
-                                           ( modbus[5] < 0xff ) )
+                                           ( modbus[5] <= 0xff ) )
                                        )
                                     {
                                       // write new Humidity Offset
-                                      HumidityOffset = modbus[5];
-                                      eeprom_write_byte( &EEData[2], HumidityOffset );
+                                      HumidityOffsetSignedInt = modbus[5];
+                                      eeprom_write_byte( &EEData[2], HumidityOffsetSignedInt);
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }

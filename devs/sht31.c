@@ -1,9 +1,10 @@
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2018
+ * Copyright (c) 2018, 2023
  *
  * Balint Cristian <cristian dot balint at gmail dot com>
+ * Stefan Reichhard <s.reichhard@netMedia.pro>
  *
  * TinnyModbus
  *
