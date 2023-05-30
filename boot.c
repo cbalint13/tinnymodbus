@@ -64,13 +64,13 @@
 
 
 
-extern uint8_t IDModbus;
+extern uint8_t EEData[];
 
 // modbus frames
 uint8_t modbus[40];
 
 // Software version string
-static const char PROGMEM BLVers[4] = "0.01"; // 4 octet ASCII
+static const char PROGMEM BLVers[4] = "0.02"; // 4 octet ASCII
 
 static void send_modbus_array( uint8_t *sendbuff, const uint8_t len )
 {
@@ -155,7 +155,8 @@ int main( void )
     );
 
     // fetch own slave address from EEPROM
-    uint8_t IdSv = eeprom_read_byte(&IDModbus);
+    uint8_t IdSv = eeprom_read_byte(&EEData[0]);
+
 
     /*
      * receive buffer for modbus frame (fcode = 3,4,6)

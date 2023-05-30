@@ -1,9 +1,13 @@
+#!/usr/bin/python
+
+"""
 /*********************************************************************
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2018
+ * Copyright (c) 2018, 2023
  *
  * Balint Cristian <cristian dot balint at gmail dot com>
+ * Stefan Reichhard <s.reichhard@netMedia.pro>
  *
  * TinnyModbus
  *
@@ -38,18 +42,44 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  *********************************************************************/
+"""
 
-/*
+"""
 
-  eeprom.h (EEPROM stoarge for variables)
+  mainmode-set-Humidity-offset.py (calibrate Humidity Value)
 
-*/
+"""
 
-#ifndef _EEPROM_H
-#define _EEPROM_H
+import sys
+import logging
 
-#include <avr/eeprom.h>
+from pymodbus.constants import Endian
+from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.payload import BinaryPayloadBuilder
+from pymodbus.client import ModbusSerialClient as ModbusClient
 
-// EEPROM data
-extern uint8_t EEMEM EEData[];
-#endif
+
+
+logging.basicConfig()
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+# create connection (main mode is 38400)
+client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=38400, timeout=1.5)
+client.connect()
+
+try:
+  slvaddr = int(sys.argv[1])
+  offset = int(sys.argv[2])
+except:
+  print ("usage: %s [slvaddr] [humidity offset]" % sys.argv[0])
+  print ("[humidity offset] : 0 to 127 represents 0.0 to +12.7 %RH and 255 to 128: -0.1 to -12.8 %RH offset (8 bit signed int)")
+  sys.exit(-1)
+
+print ("modbus cmd: 0x06 addr: 0x0021 value: 0x%04x length: 0x01\n" % offset)
+result  = client.write_register(address=0x0021, value=offset, count=0x01, slave=slvaddr)
+print (result)
+
+print ("")
+
+client.close()

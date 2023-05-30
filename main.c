@@ -61,19 +61,21 @@
 #include "usiuartx.h"
 #include "softi2c.h"
 #include "atsens.h"
-
 #include "ds18b20.h"
-#include "sht21.h"
-#include "si1145.h"
+//#include "sht21.h"
+#include "sht31.h"
+//#include "si1145.h"
 #include "bh1750.h"
-#include "bmp280.h"
+//#include "bmp280.h"
 //#include "bme280.h"
 
 
 // globals
+#ifdef ATSENS_H
 extern float sensVcc;
 extern float sensTmp;
-extern uint8_t IDModbus;
+#endif
+extern uint8_t EEData[];
 
 uint8_t si1145_done = 0x00;
 uint8_t bh1750_done = 0x00;
@@ -81,7 +83,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.03"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.05"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -119,7 +121,14 @@ int main(void)
     cli();
 
     // fetch own slave address from EEPROM
-    uint8_t IdSv = eeprom_read_byte(&IDModbus);
+    uint8_t IdSv = eeprom_read_byte(&EEData[0]);
+
+    // fetch Temperature Offset from EEPROM
+    int8_t TemperatureOffsetSignedInt = eeprom_read_byte(&EEData[1]);
+    float TemperatureOffset = (float) TemperatureOffsetSignedInt / 10;
+    // fetch Humidity Offset from EEPROM
+    int8_t HumidityOffsetSignedInt = eeprom_read_byte(&EEData[2]);
+    float HumidityOffset = (float) HumidityOffsetSignedInt / 10;
 
     #ifdef ATSENS_H
     // internal
@@ -252,7 +261,7 @@ int main(void)
                                     sendbuff[2] = 0x02; // mslen
 
                                     // read out id slave
-                                    IdSv = eeprom_read_byte(&IDModbus);
+                                    IdSv = eeprom_read_byte(&EEData[0]);
 
                                     // store id slave
                                     sendbuff[3] = 0x00;
@@ -301,13 +310,52 @@ int main(void)
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
                                 #endif
+                                // read Temperature Offset
+                                if ( daddr == 0x012 )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    TemperatureOffsetSignedInt = eeprom_read_byte(&EEData[1]);
+                                    TemperatureOffset = (float) TemperatureOffsetSignedInt / 10;
+                                    float V = TemperatureOffset;
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
+                                // read Humidity Offset
+                                if ( daddr == 0x022 )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    HumidityOffsetSignedInt = eeprom_read_byte(&EEData[2]);
+                                    HumidityOffset = (float) HumidityOffsetSignedInt / 10;
+                                    float V = HumidityOffset;
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
                                 break; // fcode=0x03
 
                             // read input register
                             case 0x04:
 
                                 sendbuff[1] = 0x04; // fcode
-
+                                
+                                #ifdef _DS18B20_H
                                 // return MAX_DEVICES
                                 if ( daddr == 0x0000 )
                                 {
@@ -321,7 +369,7 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 7 );
                                 }
-                                #ifdef _DS18B20_H
+                                
                                 // return 1W NUMDEVS
                                 if ( daddr == 0x0001 )
                                 {
@@ -456,6 +504,37 @@ int main(void)
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
                                 #endif
+                                #ifdef _SHT31_H
+                                // return I2C DEV VALUES
+                                if ( ( daddr >= 0x1250 ) &&
+                                     ( daddr <= 0x1251 ) )
+                                {
+                                    // requested amount
+                                    if ( modbus[5] != 0x02 ) break;
+
+                                    sendbuff[2] = 0x04; // mslen
+
+                                    float V;
+
+                                    if ( daddr == 0x1250 ) {
+                                      V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
+                                      V =  V + TemperatureOffset;
+                                    }
+                                      
+                                    if ( daddr == 0x1251 ) {
+                                      V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
+                                      V =  V + HumidityOffset;
+                                    }
+                                      
+
+                                    sendbuff[3] = ((uint8_t*)(&V))[3];
+                                    sendbuff[4] = ((uint8_t*)(&V))[2];
+                                    sendbuff[5] = ((uint8_t*)(&V))[1];
+                                    sendbuff[6] = ((uint8_t*)(&V))[0];
+
+                                    send_modbus_array( &sendbuff[0], 9 );
+                                }
+                                #endif
                                 #ifdef _SI1145_H
                                 // return I2C DEV VALUES
                                 if ( ( daddr >= 0x1210 ) &&
@@ -560,14 +639,18 @@ int main(void)
                                       bme280_done = 0x01;
                                     }
 
-                                    int32_t V;
-
-                                    if ( daddr == 0x1240 )
-                                      V = bme280_read_value( BME280_TEMP );
-                                    if ( daddr == 0x1241 )
-                                      V = bme280_read_value( BME280_PRES );
-                                    if ( daddr == 0x1242 )
-                                      V = bme280_read_value( BME280_HUM );
+                                    float V;
+                                    if ( daddr == 0x1240 ) {
+                                      V = (float) bme280_read_value( BME280_TEMP )/100;
+                                      V =  V + TemperatureOffset;
+                                    }
+                                    if ( daddr == 0x1241 ) {
+                                      V = (float) bme280_read_value( BME280_PRES )/100; 
+                                    }
+                                    if ( daddr == 0x1242 ) {
+                                      V = (float) bme280_read_value( BME280_HUM )/100;
+                                      V =  V + HumidityOffset;
+                                    }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -637,7 +720,7 @@ int main(void)
                                     {
                                       // write new id slave
                                       IdSv = modbus[5];
-                                      eeprom_write_byte( &IDModbus, IdSv );
+                                      eeprom_write_byte( &EEData[0], IdSv );
 
                                       usiuartx_tx_array( &modbus[0], 8 );
                                     }
@@ -647,7 +730,48 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
+                                // write Temperature Offset
+                                if ( daddr == 0x0011 )
+                                {
+                                    // values within 0x00 - 0xff
+                                    if ( ( modbus[4] == 0x00 ) &&
+                                         ( ( modbus[5] >= 0x00 ) &&
+                                           ( modbus[5] <= 0xff ) )
+                                       )
+                                    {
+                                      // write new Temperature Offset
+                                      TemperatureOffsetSignedInt = modbus[5];
+                                      eeprom_write_byte( &EEData[1], TemperatureOffsetSignedInt);
 
+                                      usiuartx_tx_array( &modbus[0], 8 );
+                                    }
+                                    else
+                                    {
+                                      // illegal data value
+                                      send_modbus_exception( &sendbuff[0], 0x03 );
+                                    }
+                                }
+                                // write Humidity Offset
+                                if ( daddr == 0x0021 )
+                                {
+                                    // values within 0x00 - 0xff
+                                    if ( ( modbus[4] == 0x00 ) &&
+                                         ( ( modbus[5] >= 0x00 ) &&
+                                           ( modbus[5] <= 0xff ) )
+                                       )
+                                    {
+                                      // write new Humidity Offset
+                                      HumidityOffsetSignedInt = modbus[5];
+                                      eeprom_write_byte( &EEData[2], HumidityOffsetSignedInt);
+
+                                      usiuartx_tx_array( &modbus[0], 8 );
+                                    }
+                                    else
+                                    {
+                                      // illegal data value
+                                      send_modbus_exception( &sendbuff[0], 0x03 );
+                                    }
+                                }
                                 break; // fcode=0x06
 
                         } // end switch fcode
