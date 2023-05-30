@@ -1,4 +1,5 @@
 build/*
+.vscode/*
 tools/modbus-flash
 *.hex
 *.eep
