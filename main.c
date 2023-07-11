@@ -104,7 +104,7 @@ uint8_t bmp280_done = 0x00;
 uint8_t bme280_done = 0x00;
 
 // software version string
-static const char PROGMEM SWVers[4] = "0.05"; // 4 octet ASCII
+static const char PROGMEM SWVers[4] = "0.06"; // 4 octet ASCII
 
 /*
  *  embed and send modbus frame
@@ -144,11 +144,11 @@ int main(void)
     // fetch own slave address from EEPROM
     uint8_t IdSv = eeprom_read_byte(&EEData[0]);
 
-    #ifdef _SHT31_H
+    #ifdef CALIBRATION
     // fetch Temperature Offset from EEPROM
-    float SHT31_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
+    float CAL_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
     // fetch Humidity Offset from EEPROM
-    float SHT31_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
+    float CAL_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
     #endif
 
     #ifdef ATSENS_H
@@ -331,7 +331,7 @@ int main(void)
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
                                 #endif
-                                #ifdef _SHT31_H
+                                #ifdef CALIBRATION
                                 // read Temperature Offset
                                 if ( daddr == 0x012 )
                                 {
@@ -340,8 +340,8 @@ int main(void)
 
                                     sendbuff[2] = 0x04; // mslen
 
-                                    SHT31_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
-                                    float V = SHT31_TOffset;
+                                    CAL_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
+                                    float V = CAL_TOffset;
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -358,8 +358,8 @@ int main(void)
 
                                     sendbuff[2] = 0x04; // mslen
 
-                                    SHT31_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
-                                    float V = SHT31_HOffset;
+                                    CAL_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
+                                    float V = CAL_HOffset;
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -368,8 +368,8 @@ int main(void)
 
                                     send_modbus_array( &sendbuff[0], 9 );
                                 }
-                                break; // fcode=0x03
                                 #endif
+                                break; // fcode=0x03
 
                             // read input register
                             case 0x04:
@@ -513,9 +513,20 @@ int main(void)
                                     float V;
 
                                     if ( daddr == 0x1200 )
+                                    {
                                       V = (float)sht21ReadValue( SHT21_TEMP ) / 1000;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_TOffset;
+                                      #endif
+                                    }
+
                                     if ( daddr == 0x1201 )
+                                    {
                                       V = (float)sht21ReadValue( SHT21_HUMI ) / 1000;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_HOffset;
+                                      #endif
+                                    }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -537,14 +548,20 @@ int main(void)
 
                                     float V;
 
-                                    if ( daddr == 0x1250 ) {
+                                    if ( daddr == 0x1250 )
+                                    {
                                       V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
-                                      V =  V + SHT31_TOffset;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_TOffset;
+                                      #endif
                                     }
 
-                                    if ( daddr == 0x1251 ) {
+                                    if ( daddr == 0x1251 )
+                                    {
                                       V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
-                                      V =  V + SHT31_HOffset;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_HOffset;
+                                      #endif
                                     }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
@@ -631,7 +648,12 @@ int main(void)
 
                                     int32_t V;
                                     if ( daddr == 0x1230 )
+                                    {
                                       V = bmp280_read_value( BMP280_TEMP );
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_TOffset;
+                                      #endif
+                                    }
                                     if ( daddr == 0x1231 )
                                       V = bmp280_read_value( BMP280_PRES );
 
@@ -660,16 +682,23 @@ int main(void)
                                     }
 
                                     float V;
-                                    if ( daddr == 0x1240 ) {
+                                    if ( daddr == 0x1240 )
+                                    {
                                       V = (float) bme280_read_value( BME280_TEMP )/100;
-                                      V =  V + TemperatureOffset;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_TOffset;
+                                      #endif
                                     }
-                                    if ( daddr == 0x1241 ) {
+                                    if ( daddr == 0x1241 )
+                                    {
                                       V = (float) bme280_read_value( BME280_PRES )/100; 
                                     }
-                                    if ( daddr == 0x1242 ) {
+                                    if ( daddr == 0x1242 )
+                                    {
                                       V = (float) bme280_read_value( BME280_HUM )/100;
-                                      V =  V + HumidityOffset;
+                                      #ifdef CALIBRATION
+                                      V =  V + CAL_HOffset;
+                                      #endif
                                     }
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
@@ -750,8 +779,8 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
-                                #ifdef _SHT31_H
-                                // write Temperature Offset
+                                #ifdef CALIBRATION
+                                // write Temperature Offset (8bit signed int)
                                 if ( daddr == 0x0011 )
                                 {
                                     // values within 0x00 - 0xff
@@ -771,7 +800,7 @@ int main(void)
                                       send_modbus_exception( &sendbuff[0], 0x03 );
                                     }
                                 }
-                                // write Humidity Offset
+                                // write Humidity Offset (8bit signed int)
                                 if ( daddr == 0x0021 )
                                 {
                                     // values within 0x00 - 0xff
