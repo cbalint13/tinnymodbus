@@ -5,11 +5,25 @@ rm -rf build/*
 rm -rf *.hex
 rm -rf *.eep
 
+##
+## Enabled DEVICES
+##
+##   DS18B20  (1w    | temperature)
+##   SHT21    (i2c   | temperature + humidity)
+##   SHT31    (i2c   | temperature + humidity + calbibration)
+##   SI1145   (i2c   | light: visible, infra, uv)
+##   BH1750   (i2c   | light: visible)
+##   BMP280   (i2c   | temperature + pressure)
+##   BME280   (i2c   | temperature + pressure + humidity)
+##
+
+DEVS_ENABLE="-DDS18B20 -DSHT21 -DSI1145 -DBH1750 -DBMP280"
+
 # 1280 byte
 # boot reserve
 ENTRYADDR=0x1C00
 
-CFLAGS="-Wall -DAPPADDR=$ENTRYADDR -DF_CPU=8000000 -mrelax -mmcu=attiny85 -ffunction-sections -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wstrict-prototypes -std=gnu99 -MMD -MP -I./libs -I./devs"
+CFLAGS="-Wall $DEVS_ENABLE -DAPPADDR=$ENTRYADDR -DF_CPU=8000000 -mrelax -mmcu=attiny85 -ffunction-sections -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wstrict-prototypes -std=gnu99 -MMD -MP -I./libs -I./devs"
 
 echo
 echo "GCC for AVR (8.0.1 is recommended, LTO code size fits/smaller)."
@@ -21,6 +35,7 @@ echo
 
 avr-gcc -c $CFLAGS -flto -MF build/ds18b20.o.d  -Wa,-adhlns=build/ds18b20.lst    devs/ds18b20.c  -o build/ds18b20.o
 avr-gcc -c $CFLAGS -flto -MF build/sht21.o.d    -Wa,-adhlns=build/sht21.lst      devs/sht21.c    -o build/sht21.o
+avr-gcc -c $CFLAGS -flto -MF build/sht31.o.d    -Wa,-adhlns=build/sht31.lst      devs/sht31.c    -o build/sht31.o
 avr-gcc -c $CFLAGS -flto -MF build/si1145.o.d   -Wa,-adhlns=build/si1145.lst     devs/si1145.c   -o build/si1145.o
 avr-gcc -c $CFLAGS -flto -MF build/bh1750.o.d   -Wa,-adhlns=build/bh1750.lst     devs/bh1750.c   -o build/bh1750.o
 avr-gcc -c $CFLAGS -flto -MF build/bmp280.o.d   -Wa,-adhlns=build/bmp280.lst     devs/bmp280.c   -o build/bmp280.o
@@ -37,9 +52,9 @@ avr-gcc -c $CFLAGS -flto -MF build/usiuartx.o.d -Wa,-adhlns=build/usiuartx.c.lst
 avr-gcc -c $CFLAGS -flto -MF build/main.o.d     -Wa,-adhlns=build/main.lst       main.c          -o build/main.o
 
 avr-gcc $CFLAGS -flto -o build/main.elf \
-                build/main.o build/usiuartx.o build/crc16.o build/crc8.o build/sht21.o build/si1145.o build/bh1750.o \
-                build/bmp280.o build/bme280.o build/1wire.o build/softi2c.o build/atsens.o build/ds18b20.o build/eeprom.o \
-        -Wl,--relax,--gc-sections,-Map=build/main.map
+                build/main.o build/usiuartx.o build/crc16.o build/crc8.o build/sht21.o build/sht31.o build/si1145.o \
+                build/bh1750.o build/bmp280.o build/bme280.o build/1wire.o build/softi2c.o build/atsens.o build/ds18b20.o \
+                build/eeprom.o -Wl,--relax,--gc-sections,-Map=build/main.map
 
 
 echo "MAIN:"
