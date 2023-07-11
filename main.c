@@ -146,9 +146,9 @@ int main(void)
 
     #ifdef CALIBRATION
     // fetch Temperature Offset from EEPROM
-    float generic_Temp_Offset = eeprom_read_byte(&EEData[1]) / 10.0f;
+    float CAL_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
     // fetch Humidity Offset from EEPROM
-    float generic_Humidity_Offset = eeprom_read_byte(&EEData[2]) / 10.0f;
+    float CAL_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
     #endif
 
     #ifdef ATSENS_H
@@ -340,8 +340,8 @@ int main(void)
 
                                     sendbuff[2] = 0x04; // mslen
 
-                                    generic_Temp_Offset = eeprom_read_byte(&EEData[1]) / 10.0f;
-                                    float V = generic_Temp_Offset;
+                                    CAL_TOffset = eeprom_read_byte(&EEData[1]) / 10.0f;
+                                    float V = CAL_TOffset;
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -358,8 +358,8 @@ int main(void)
 
                                     sendbuff[2] = 0x04; // mslen
 
-                                    generic_Humidity_Offset = eeprom_read_byte(&EEData[2]) / 10.0f;
-                                    float V = generic_Humidity_Offset;
+                                    CAL_HOffset = eeprom_read_byte(&EEData[2]) / 10.0f;
+                                    float V = CAL_HOffset;
 
                                     sendbuff[3] = ((uint8_t*)(&V))[3];
                                     sendbuff[4] = ((uint8_t*)(&V))[2];
@@ -516,7 +516,7 @@ int main(void)
                                     {
                                       V = (float)sht21ReadValue( SHT21_TEMP ) / 1000;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Temp_Offset;
+                                      V =  V + CAL_TOffset;
                                       #endif
                                     }
 
@@ -524,7 +524,7 @@ int main(void)
                                     {
                                       V = (float)sht21ReadValue( SHT21_HUMI ) / 1000;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Humidity_Offset;
+                                      V =  V + CAL_HOffset;
                                       #endif
                                     }
 
@@ -552,7 +552,7 @@ int main(void)
                                     {
                                       V = (float)sht31ReadValue( SHT31_TEMP ) / 100;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Temp_Offset;
+                                      V =  V + CAL_TOffset;
                                       #endif
                                     }
 
@@ -560,7 +560,7 @@ int main(void)
                                     {
                                       V = (float)sht31ReadValue( SHT31_HUMI ) / 100;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Humidity_Offset;
+                                      V =  V + CAL_HOffset;
                                       #endif
                                     }
 
@@ -651,7 +651,7 @@ int main(void)
                                     {
                                       V = bmp280_read_value( BMP280_TEMP );
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Temp_Offset;
+                                      V =  V + CAL_TOffset;
                                       #endif
                                     }
                                     if ( daddr == 0x1231 )
@@ -686,7 +686,7 @@ int main(void)
                                     {
                                       V = (float) bme280_read_value( BME280_TEMP )/100;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Temp_Offset;
+                                      V =  V + CAL_TOffset;
                                       #endif
                                     }
                                     if ( daddr == 0x1241 )
@@ -697,7 +697,7 @@ int main(void)
                                     {
                                       V = (float) bme280_read_value( BME280_HUM )/100;
                                       #ifdef CALIBRATION
-                                      V =  V + generic_Humidity_Offset;
+                                      V =  V + CAL_HOffset;
                                       #endif
                                     }
 
