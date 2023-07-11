@@ -9,12 +9,12 @@ rm -rf *.eep
 ## Enabled DEVICES
 ##
 ##   DS18B20  (1w    | temperature)
-##   SHT21    (i2c   | temperature + humidity + optional calbibration)
-##   SHT31    (i2c   | temperature + humidity + optional calbibration)
+##   SHT21    (i2c   | temperature + humidity + optional calibration)
+##   SHT31    (i2c   | temperature + humidity + optional calibration)
 ##   SI1145   (i2c   | light: visible, infra, uv)
 ##   BH1750   (i2c   | light: visible)
-##   BMP280   (i2c   | temperature + pressure + optional calbibration)
-##   BME280   (i2c   | temperature + pressure + humidity + optional calbibration)
+##   BMP280   (i2c   | temperature + pressure + optional calibration)
+##   BME280   (i2c   | temperature + pressure + humidity + optional calibration)
 ##   CALIBRATION (software logic | enable support for temperature and humdidity calibration +/- 12,7 °C / %RH)
 ##   
 
