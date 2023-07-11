@@ -9,15 +9,17 @@ rm -rf *.eep
 ## Enabled DEVICES
 ##
 ##   DS18B20  (1w    | temperature)
-##   SHT21    (i2c   | temperature + humidity)
-##   SHT31    (i2c   | temperature + humidity + calbibration)
+##   SHT21    (i2c   | temperature + humidity + optional calbibration)
+##   SHT31    (i2c   | temperature + humidity + optional calbibration)
 ##   SI1145   (i2c   | light: visible, infra, uv)
 ##   BH1750   (i2c   | light: visible)
-##   BMP280   (i2c   | temperature + pressure)
-##   BME280   (i2c   | temperature + pressure + humidity)
-##
+##   BMP280   (i2c   | temperature + pressure + optional calbibration)
+##   BME280   (i2c   | temperature + pressure + humidity + optional calbibration)
+##   CALIBRATION (software logic | enable support for temperature and humdidity calibration +/- 12,7 °C / %RH)
+##   
 
 DEVS_ENABLE="-DDS18B20 -DSHT21 -DSI1145 -DBH1750 -DBMP280"
+#DEVS_ENABLE="-DSHT31 -DBH1750 -DCALIBRATION"
 
 # 1280 byte
 # boot reserve
