@@ -41,9 +41,12 @@ ModBus detailed register description are in [MODBUS.md](https://github.com/cbali
 Schematic, Printed Circuit Board, 3D layout are available on [CircuitMaker](https://workspace.circuitmaker.com/Projects/Details/Cristian-Balint/TinnyModbus), but can be also checked in **docs** folder.
 
 
-More docs & usage scenario examples to come, some are alrady in ```tools/examples/``` folder.
+Docs & usage scenario examples are in ```tools/examples/``` folder.
+
+> BUILD
+
+See [tools/docker](tools/docker) folder for easy build receipt.
 
 
 ![SCH](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-sch.png)
 ![PHOTO](https://github.com/cbalint13/tinnymodbus/raw/master/docs/tinnymodbus-photo.png)
-

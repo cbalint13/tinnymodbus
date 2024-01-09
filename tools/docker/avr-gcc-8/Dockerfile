@@ -15,10 +15,7 @@ RUN dnf -y update
 ##
 
 # install package
-RUN dnf -y install git
-
-# install package
-RUN dnf -y install avr-gcc-8 avr-libc git
+RUN dnf -y install avr-gcc-8 avr-libc
 
 VOLUME "/opt/src/"
 WORKDIR "/opt/src/"
