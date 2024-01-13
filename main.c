@@ -681,21 +681,21 @@ int main(void)
                                       bme280_done = 0x01;
                                     }
 
-                                    float V;
+                                    int32_t V;
                                     if ( daddr == 0x1240 )
                                     {
-                                      V = (float) bme280_read_value( BME280_TEMP )/100;
+                                      V = bme280_read_value( BME280_TEMP );
                                       #ifdef CALIBRATION
                                       V =  V + CAL_TOffset;
                                       #endif
                                     }
                                     if ( daddr == 0x1241 )
                                     {
-                                      V = (float) bme280_read_value( BME280_PRES )/100; 
+                                      V = bme280_read_value( BME280_PRES );
                                     }
                                     if ( daddr == 0x1242 )
                                     {
-                                      V = (float) bme280_read_value( BME280_HUM )/100;
+                                      V = bme280_read_value( BME280_HUM );
                                       #ifdef CALIBRATION
                                       V =  V + CAL_HOffset;
                                       #endif
