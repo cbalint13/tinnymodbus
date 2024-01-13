@@ -38,7 +38,7 @@
   | 0x1231 (2 regs) | 4 byte (float)    | I2C: Read air pressure from BMP280 device (hPa)            |
   | 0x1240 (2 regs) | 4 byte (float)    | I2C: Read temperature from BME280 device (Celsius)         |
   | 0x1241 (2 regs) | 4 byte (float)    | I2C: Read air pressure from BME280 device (hPa)            |
-  | 0x1242 (2 regs) | 4 byte (float)    | I2C: Read air pressure from BME280 device (RH)             |
+  | 0x1242 (2 regs) | 4 byte (float)    | I2C: Read R humidity from BME280 device (RH)               |
 
   **Write Registers (0x06)**
 
