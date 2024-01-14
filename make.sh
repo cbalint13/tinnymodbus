@@ -18,8 +18,10 @@ rm -rf *.eep
 ##   CALIBRATION (software logic | enable support for temperature and humdidity calibration +/- 12,7 °C / %RH)
 ##   
 
-DEVS_ENABLE="-DDS18B20 -DSHT21 -DSI1145 -DBH1750 -DBMP280"
+DEVS_ENABLE="-DDS18B20 -DSHT21 -DSI1145 -DBH1750 -DBMP280" #These drivers require AVR-GCC v8.0.1 -> Docker
+#DEVS_ENABLE="-DDS18B20 -DBME280" #Enabled DS18B20 and BME280 -> works without Docker (AVR-GCC can >v8.0.1)
 #DEVS_ENABLE="-DSHT31 -DBH1750 -DCALIBRATION"
+#DEVS_ENABLE="-DDS18B20 -DBME280 -DCALIBRATION" #These drivers require AVR-GCC v8.0.1 -> Docker
 
 # 1280 byte
 # boot reserve
