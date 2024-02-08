@@ -138,7 +138,8 @@ static void send_modbus_exception( uint8_t *sendbuff, uint8_t errcode )
  */
 int main(void)
 {
-
+    //OSCCAL = XXX; //Line to calibrate the internal oscillator. It is an integer number
+    
     cli();
 
     // fetch own slave address from EEPROM
