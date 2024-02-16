@@ -33,7 +33,7 @@
   | 0x1201 (2 regs) | 4 byte (float)    | I2C: Read R humidity from SHT21 device (Percent)           |
   | 0x1210 (2 regs) | 4 byte (float)    | I2C: Read visible light lux from SI1145 device (Lux)       |
   | 0x1211 (2 regs) | 4 byte (float)    | I2C: Read ifrared light lux from SI1145 device (Lux)       |
-  | 0x1211 (2 regs) | 4 byte (float)    | I2C: Read ultraviolet index from SI1145 device (Index)     |
+  | 0x1212 (2 regs) | 4 byte (float)    | I2C: Read ultraviolet index from SI1145 device (Index)     |
   | 0x1230 (2 regs) | 4 byte (float)    | I2C: Read temperature from BMP280 device (Celsius)         |
   | 0x1231 (2 regs) | 4 byte (float)    | I2C: Read air pressure from BMP280 device (hPa)            |
   | 0x1240 (2 regs) | 4 byte (float)    | I2C: Read temperature from BME280 device (Celsius)         |
